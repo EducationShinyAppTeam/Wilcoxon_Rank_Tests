@@ -648,9 +648,28 @@ ui <- list(
           h2("References"),
           p(
             class = "hangingindent",
-            "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny.
-            (v0.61). [R package]. Available from
+            "Bailey, E. (2022). shinyBS: Twitter bootstrap components for shiny.
+            (v 0.61.1). [R package]. Available from
             https://CRAN.R-project.org/package=shinyBS"
+          ),
+          p(
+            class = "hangingindent",
+            "Carey, R. and Hatfield, N. J. (2022). boastUtils: BOAST utlities.
+            (v 0.1.12.3). [R package]. Available from
+            https://github.com/EducationShinyAppTeam/boastUtils"
+          ),
+          p(
+            class = "hangingindent",
+            "Change, W., and Borges Ribeiro, B. (2021). shinydashboard: Create
+            dashboards with 'shiny'. (v 0.7.2) [R package]. Available from
+            https://CRAN.R-project.org/package=shinydashboard"
+          ),
+          p(
+            class = "hangingindent",
+            "Chang, W., Cheng J., Allaire, J., Sievert, C., Schloerke, B., Xie, Y.,
+            Allen, J., McPherson, J., Dipert, A., and Borges, B. (2021). shiny:
+            Web application framework for R. (v 1.7.1). [R package]. Available
+            from https://CRAN.R-project.org/package=shiny"
           ),
           p(
             class = "hangingindent",
@@ -659,8 +678,26 @@ ui <- list(
           ),
           p(
             class = "hangingindent",
+            "Perrier, V., Meyer, F., and Granjon, D. (2022). shinyWidgets: Custom
+            inputs widgets for shiny. (v 0.7.0). [R package]. Available from
+            https://CRAN.R-project.org/package=shinyWidgets"
+          ),
+          p(
+            class = "hangingindent",
             "Robert V. Hogg, Elliot A. Tanis, and Dale L. Zimmerman. Probability
             and statistical inference. Pearson Education, 2015."
+          ),
+          p(
+            class = "hangingindent",
+            "Wickham, H. (2016). ggplot2: Elegant graphics for data analysis.
+            Springer-Verlag:New York. (v 3.3.6) [R package]. Available from
+            https://ggplot2.tidyverse.org"
+          ),
+          p(
+            class = "hangingindent",
+            "Wickham, H., François, R., Henry, L., Müller, K. (2021). dplyr: A 
+            Grammar of Data Manipulation. R package version 1.0.6. Available from
+            https://CRAN.R-project.org/package=dplyr"
           ),
           br(),
           br(),

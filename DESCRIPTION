@@ -3,9 +3,9 @@ ShortName: Wilcoxon Rank Tests
 Date: 2022-06-30
 Lifecycle: experimental
 Authors@R: c(
-    person(given = "Neil", family = "Hatfield", email = "neil.hatfield@psu.edu", role = c("aut", "cre")),
-    person(given = "Robert", family = "Carey", email = "rpc5102@psu.edu", role = c("aut")),
     person(given = "Wanyi", family = "Su", email = "wbs5152@psu.edu", role = c("aut"))
+    person(given = "Neil", family = "Hatfield", email = "neil.hatfield@psu.edu", role = c("aut", "cre")),
+    person(given = "Robert", family = "Carey", email = "rpc5102@psu.edu", role = c("aut"))
   )
 Chapter: Chapter 4
 Description: This app is focused on the non-parametric tests of Wilcoxon Rank Tests.
