@@ -607,8 +607,9 @@ ui <- list(
                 id = "mathPopPara",
                 "The population chart shows the distribution of the number of days
                 available in the rest of 2022 after March 1st around two places. 
-                There are WT = 669 airbnbs in west town, and NNS = 783 airbnbs near 
-                north side. The population medians are \\(wt = 167\\) and \\(nns = 245\\)."
+                There are 669 airbnbs in West Town (WT) and 783 airbnbs in the 
+                Near North Side (NNS). The population medians are 167 for WT and
+                245 for NNS."
               )
             )
           ),
