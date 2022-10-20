@@ -8,6 +8,7 @@ library(ggplot2)
 library(truncnorm)
 library(dplyr)
 library(readr)
+library(DT)
 
 # Load additional dependencies and setup functions
 # source("global.R")
@@ -171,7 +172,7 @@ ui <- list(
       tags$li(
         class = "dropdown",
         tags$a(href = 'https://shinyapps.science.psu.edu/',
-               icon("house")
+               icon("home")
         )
       )
     ),
@@ -180,7 +181,7 @@ ui <- list(
       width = 250,
       sidebarMenu(
         id = "pages",
-        menuItem("Overview", tabName = "overview", icon = icon("gauge-high")),
+        menuItem("Overview", tabName = "overview", icon = icon("tachometer-alt")),
         menuItem("Prerequisites", tabName = "prerequisites", icon = icon("book")),
         menuItem("Example", tabName = "example", icon = icon("wpexplorer")),
         menuItem("Wilcoxon Signed Rank Test", tabName = "explore1", icon = icon("wpexplorer")),
@@ -271,7 +272,7 @@ ui <- list(
             title = strong("Wilcoxon Signed Rank Test"),
             status = "primary",
             collapsible = TRUE,
-            collapsed = FALSE,
+            collapsed = TRUE,
             width = '100%',
             "This test can be used to test the location of a single population 
             median, m (including the special case of whether the difference 
@@ -312,6 +313,7 @@ ui <- list(
             type = "tabs",
             tabPanel(
               "One Sample Example",
+              br(),
               h2("Grip Strength data"),
               tags$ul(tags$li("This is based on Wilcoxon Signed Rank Test."),
                       tags$li("Adjust the sliders to change the confidence level."),
@@ -348,33 +350,38 @@ ui <- list(
                     )
                   )
                 ),
-                h3("Sample  Boxplot"),
                 column(
                   width = 8,
-                  plotOutput(outputId = "boxplot1", height = "300px")),
-                br(),
-                br(),
-                br(),
-                br(),
-                h3("Sample  Dotplot"),
-                column(
-                  width = 8,
-                  plotOutput(outputId = "dotplot1", height = "200px")
-                ),
-                column(
-                  width = 12,
+                  plotOutput(outputId = "boxplot1", height = "300px"),
+                  br(),
+                  plotOutput(outputId = "dotplot1", height = "250px")
+                )
+              ),
+                # h3("Sample  Boxplot"),
+                # column(
+                #   width = 8,
+                #   plotOutput(outputId = "boxplot1", height = "300px")),
+                # br(),
+                # br(),
+                # br(),
+                # br(),
+                # h3("Sample  Dotplot"),
+                # column(
+                #   width = 8,
+                #   plotOutput(outputId = "dotplot1", height = "200px")
+                # ),
                   checkboxInput(
                     inputId = "CIcheckbox",
                     label = "Results table",
                     value = FALSE,
                     width = "100%"
                   ),
-                  tableOutput(outputId = "CItable")
-                )
-              )
+              DT::DTOutput(outputId = "CItable")
+              # tableOutput(outputId = "CItable")
             ),
             tabPanel(
               "Two Sample Example",
+              br(),
               h2("Siblings data"),
               tags$ul(tags$li("This is based on Wilcoxon Rank Sum Test."),
                       tags$li("Adjust the sliders to change the confidence level."),
@@ -399,7 +406,6 @@ ui <- list(
                       value = 95,
                       post = "%"
                     ),
-                    br(),
                     selectInput(
                       inputId = "AltHypo2",
                       label = "Alternative Hypothesis",
@@ -410,43 +416,25 @@ ui <- list(
                     )
                   )
                 ),
-                h3("Sample  Boxplot"),
                 column(
                   width = 8,
-                  plotOutput(outputId = "boxplot2", height = "300px")
-                ),
-                br(),
-                br(),
-                br(),
-                br(),
-                h3("Sample  Dotplot"),
-                column(
-                  width = 8,
-                  plotOutput(outputId = "dotplot2", height = "200px")
-                ),
-                br(),
-                br(),
-                br(),
-                br(),
-                h3("Median Differences plot"),
-                column(
-                  width = 8,
-                  plotOutput(outputId = "mixplot", height = "300px")
-                ),
-                column(
-                  width = 12,
-                  checkboxInput(
-                    inputId = "CIcheckbox2",
-                    label = "Results table",
-                    value = FALSE,
-                    width = "100%"
-                  ),
-                  tableOutput(outputId = "CItable2")
+                  plotOutput(outputId = "boxplot2", height = "300px"),
+                  br(),
+                  plotOutput(outputId = "dotplot2", height = "250px")
                 )
-              )
+              ),
+              plotOutput(outputId = "mixplot", height = "300px"),
+              checkboxInput(
+                inputId = "CIcheckbox2",
+                label = "Results table",
+                value = FALSE,
+                width = "100%"
+              ),
+              DT::DTOutput(outputId = "CItable2")
+              # tableOutput(outputId = "CItable2")
             )
-            )
-          ),
+          )
+        ),
         #### Set up an Explore1 Page ----
         tabItem(
           tabName = "explore1",
@@ -461,7 +449,7 @@ ui <- list(
             p("A researcher plans to take a random sample of size n Airbnbs to
               do a test about their prices. The researcher
               makes a confidence interval for the prices and compares it 
-              to the median of $89 for the population
+              to the median of $56 for the population
               of airbnb prices. These data are about Airbnb prices in Chicago.")
           ),
           fluidRow(
@@ -554,11 +542,13 @@ ui <- list(
             collapsible = TRUE,
             collapsed = FALSE,
             width = "100%",
-            p("A researcher plans to take a random sample of size n and m trees to
-              do a test about their heights. The researcher
-              makes a confidence interval for the heights and compares two tree 
-              species for the population
-              of tree heights.")
+            p("A researcher plans to take a random sample of size n Airbnbs 
+              to do a test about their popularity, that is, the number of days 
+              available in the rest of 2022 after March 1st. The researcher
+              makes a confidence interval for difference between the available 
+              days for Airbnbs in two areas: near north side and in west town. 
+              These data are about Airbnbs in Chicago, which is the same as in 
+              previous page.")
           ),
           fluidRow(
             column(
@@ -721,7 +711,7 @@ server <- function(input, output, session) {
       output$boxplot1 <- renderPlot(
         expr = {
           result <- wilcox.test(ARM_data$Grip_Strength, 
-                               mu = 0, 
+                               mu = 50, 
                                conf.level = input$level/100,
                                conf.int = T, 
                                correct = F, 
@@ -731,6 +721,7 @@ server <- function(input, output, session) {
             geom_boxplot() +
             coord_flip() +
             labs(
+              title = "Boxplot of Grip Strength",
               x = NULL,
               y = "Grip Strength (pounds)"
             ) +
@@ -771,6 +762,7 @@ server <- function(input, output, session) {
           ggplot(ARM_data, aes(x = Grip_Strength)) + 
             theme_bw() +
             labs(
+              title = "Dotplot of Grip Strength",
               x = "Grip Strength (pounds)",
               y = NULL
             ) +
@@ -786,13 +778,14 @@ server <- function(input, output, session) {
               size = 1.25,
               alpha = 1
             ) +
+            
             scale_color_manual(
               name = NULL,
               labels = c(
                 "CI" = "Confidence\n Interval"
               ),
               values = c(
-                "CI" = "red"
+                "CI" = "purple"
               )) +
             theme(
               plot.caption = element_text(size = 18),
@@ -812,22 +805,79 @@ server <- function(input, output, session) {
       
   
   ## CI table one-sample ----
-  output$CItable <- renderTable({
-    result <- wilcox.test(ARM_data$Grip_Strength, 
-                          mu = 0, 
-                          conf.level = input$level/100,
-                          conf.int = T, 
-                          correct = F, 
-                          exact = T,
-                          alternative = input$AltHypo)
-    if (input$CIcheckbox) {
-      ctable <- matrix(c(round(result$conf.int[1],2), round(result$conf.int[2],2),
-                         round(result$p.value,2)), 
-                       nrow = 1)
-      colnames(ctable) <- c("Lower bound", "Upper bound",  "p-value")
-      ctable
+  
+  # output$CItable <- renderTable({
+  #   result <- wilcox.test(ARM_data$Grip_Strength, 
+  #                         mu = 50, 
+  #                         conf.level = input$level/100,
+  #                         conf.int = T, 
+  #                         correct = F, 
+  #                         exact = T,
+  #                         alternative = input$AltHypo)
+  #   if (input$CIcheckbox) {
+  #     ctable <- matrix(c(round(result$conf.int[1],2), round(result$conf.int[2],2),
+  #                        round(result$p.value,2)), 
+  #                      nrow = 1)
+  #     colnames(ctable) <- c("Lower bound", "Upper bound",  "p-value")
+  #     ctable
+  #   }
+  # })
+  
+  observeEvent(
+    eventExpr = c(input$CIcheckbox, input$AltHypo),
+    handlerExpr = {
+      if (input$CIcheckbox) {
+        result <- wilcox.test(
+          ARM_data$Grip_Strength, 
+          mu = 50, 
+          conf.level = input$level/100,
+          conf.int = T, 
+          correct = F, 
+          exact = T,
+          alternative = input$AltHypo
+          )
+        
+        ctable <- data.frame(
+          lower = round(result$conf.int[1],2),
+          upper = round(result$conf.int[2],2),
+          p.value = round(result$p.value,2)
+        )
+        # print(ctable)
+        names(ctable) <- c("Lower Bound", "Upper Bound", "p-value")
+        
+        if (input$AltHypo == "less") {
+          print('less')
+          resultTable <- ctable[, -1]
+        } else if (input$AltHypo == "greater") {
+          print('greater')
+          resultTable <- ctable[, -2]
+        } else {
+          resultTable <- ctable
+        }
+        
+        # print("final call")
+        # print(resultTable)
+        
+        # output$CItable <- renderTable({resultTable})
+        output$CItable <- DT::renderDT(
+          expr = resultTable,
+          caption = "Confidence Interval and p-value", # Add a caption to your table
+          style = "bootstrap4", # You must use this style
+          rownames = TRUE,
+          options = list( # You must use these options
+            responsive = TRUE, # allows the data table to be mobile friendly
+            scrollX = TRUE, # allows the user to scroll through a wide table
+            columnDefs = list(  # These will set alignment of data values
+              # Notice the use of ncol on your data frame; leave the 1 as is.
+              list(className = 'dt-center', targets = 1:ncol(resultTable))
+            )
+          )
+        )
+      } else {
+        output$CItable <- NULL
+      }
     }
-  })
+  )
   
   ## Boxplot two-sample ----
   
@@ -855,6 +905,7 @@ server <- function(input, output, session) {
             coord_flip() +
             theme_bw() +
             labs(
+              title = "Boxplot of Number of Siblings by Area",
               y = "Number of Siblings"
             ) +
             theme(
@@ -866,15 +917,15 @@ server <- function(input, output, session) {
               axis.text.y = element_blank()
             ) +
             geom_rect(fill="red",alpha=0.01,
-                      aes(xmin=0.6,
-                          xmax=1.4,
+                      aes(xmin=0.8,
+                          xmax=1.2,
                           ymin=ifelse(result2$conf.int[1] < 0,
                                       0,
                                       result2$conf.int[1]),
                           ymax=result2$conf.int[2])) +
             geom_rect(fill="blue",alpha=0.01,
-                      aes(xmin=1.6,
-                          xmax=2.4,
+                      aes(xmin=1.8,
+                          xmax=2.2,
                           ymin=ifelse(result3$conf.int[1] < 0,
                                       0,
                                       result3$conf.int[1]),
@@ -886,23 +937,82 @@ server <- function(input, output, session) {
   
   ## Dotplot two sample ----
   
-  output$dotplot2 <- renderPlot(
-    ggplot(Siblings_data, aes(x = NumOfSbls, fill = Area, color = Area)) + 
-      theme_bw() +
-      theme(
-        plot.caption = element_text(size = 18),
-        text = element_text(size = 18),
-        axis.title = element_text(size = 16),
-        legend.position = "bottom",
-        axis.ticks.y = element_blank(),
-        axis.text.y = element_blank()
-      ) +
-      labs(
-        x = "Number of Siblings",
-        y = NULL
-      ) +
-      geom_dotplot(binwidth = 0.15,
-                   right = FALSE)
+  observeEvent(
+    eventExpr = c(input$level2, input$AltHypo2),
+    handlerExpr = {
+      output$dotplot2 <- renderPlot(
+        expr = {
+          result2 <- wilcox.test(Rural, 
+                                 mu = 2, 
+                                 conf.level = input$level2/100,
+                                 conf.int = T, 
+                                 correct = T, 
+                                 exact = F,
+                                 alternative = input$AltHypo2)
+          result3 <- wilcox.test(Urban, 
+                                 mu = 1, 
+                                 conf.level = input$level2/100,
+                                 conf.int = T, 
+                                 correct = T, 
+                                 exact = F,
+                                 alternative = input$AltHypo2)
+          ggplot(Siblings_data, 
+                 aes(x = NumOfSbls, fill = Area, color = Area)) + 
+            theme_bw() +
+            theme(
+              plot.caption = element_text(size = 18),
+              text = element_text(size = 18),
+              axis.title = element_text(size = 16),
+              legend.position = "bottom",
+              axis.ticks.y = element_blank(),
+              axis.text.y = element_blank()
+            ) +
+            labs(
+              title = "Dotplot of Number of Siblings by Area",
+              x = "Number of Siblings",
+              y = NULL
+            ) +
+            scale_fill_manual(values = c("red", "blue")) +
+            geom_vline(
+              mapping = aes(xintercept = round(result2$conf.int[1],2),
+                            colour = "CI"),
+              size = 1.25,
+              alpha = 1
+            ) +
+            geom_vline(
+              mapping = aes(xintercept = round(result2$conf.int[2],2),
+                            color = "CI"),
+              size = 1.25,
+              alpha = 0.55
+            ) +
+            geom_vline(
+              mapping = aes(xintercept = round(result3$conf.int[1],2),
+                            colour = "CI2"),
+              size = 1.25,
+              alpha = 1
+            ) +
+            geom_vline(
+              mapping = aes(xintercept = round(result3$conf.int[2],2),
+                            color = "CI2"),
+              size = 1.25,
+              alpha = 0.55
+            ) +
+            scale_color_manual(
+              name = NULL,
+              labels = c(
+                "CI" = "CI for\nRural",
+                "CI2" = "CI for\nUrban"
+              ),
+              values = c(
+                "CI" = "red",
+                "CI2" = "blue"
+              )) +
+            geom_dotplot(binwidth = 0.15,
+                         right = FALSE,
+                         alpha = 0.55)
+        }
+      )
+    }
   )
   
   ## Mixplot two sample ----
@@ -932,10 +1042,11 @@ server <- function(input, output, session) {
               axis.text.y = element_blank()
             ) +
             labs(
+              title = "Boxplot of the difference of number of siblings between Areas",
               x = "Rural - Urban",
               y = NULL
             ) +
-            geom_rect(fill="purple",alpha=0.05,
+            geom_rect(fill="purple",alpha=0.03,
                       aes(xmin=result4$conf.int[1],
                           xmax=result4$conf.int[2],
                           ymin=-0.375,
@@ -951,40 +1062,124 @@ server <- function(input, output, session) {
   
   ## CI table two-sample ----
   
-  output$CItable2 <- renderTable({
-    result2 <- wilcox.test(Rural, 
-                           mu = 2, 
-                           conf.level = input$level2/100,
-                           conf.int = T, 
-                           correct = F, 
-                           exact = T,
-                           alternative = input$AltHypo2)
-    result3 <- wilcox.test(Urban, 
-                           mu = 1, 
-                           conf.level = input$level2/100,
-                           conf.int = T, 
-                           correct = F, 
-                           exact = T,
-                           alternative = input$AltHypo2)
-    result4 <- wilcox.test(NumOfSbls ~ Area,
-                           data = Siblings_data,
-                           paired = FALSE,
-                           conf.level = input$level2/100,
-                           conf.int = T, 
-                           correct = F, 
-                           exact = T,
-                           alternative = input$AltHypo2)
-    if (input$CIcheckbox2) {
-      ctable <- matrix(c("Rural", "Urban","Diff",round(result2$conf.int[1],2), 
-                         round(result3$conf.int[1],2), round(result4$conf.int[1],2),
-                         round(result2$conf.int[2],2), round(result3$conf.int[2],2),
-                         round(result4$conf.int[2],2), round(result2$p.value,2),
-                         round(result3$p.value,2), round(result4$p.value,2)), 
-                       nrow = 3)
-      colnames(ctable) <- c("Name", "Lower bound", "Upper bound",  "p-value")
-      ctable
+  # output$CItable2 <- renderTable({
+  #   # result2 <- wilcox.test(Rural, 
+  #   #                        mu = 2, 
+  #   #                        conf.level = input$level2/100,
+  #   #                        conf.int = T, 
+  #   #                        correct = F, 
+  #   #                        exact = T,
+  #   #                        alternative = input$AltHypo2)
+  #   # result3 <- wilcox.test(Urban, 
+  #   #                        mu = 1, 
+  #   #                        conf.level = input$level2/100,
+  #   #                        conf.int = T, 
+  #   #                        correct = F, 
+  #   #                        exact = T,
+  #   #                        alternative = input$AltHypo2)
+  #   result4 <- wilcox.test(
+  #     formula = NumOfSbls ~ Area,
+  #     data = Siblings_data,
+  #     paired = FALSE,
+  #     conf.level = input$level2/100,
+  #     conf.int = T, 
+  #     correct = F, 
+  #     exact = T,
+  #     alternative = input$AltHypo2
+  #   )
+  #   
+  #   ctable <- matrix(
+  #     data = c(round(result4$conf.int[1],2), round(result4$conf.int[2],2),
+  #              round(result4$p.value,2)),
+  #     nrow = 1)
+  #   colnames(ctable) <- c("Lower bound", "Upper bound", "p-value")
+  #   print(ctable)
+  #   
+  #   if (input$AltHypo2 == "less") {
+  #     print('less')
+  #     resultTable <- ctable[, -1]
+  #   } else if (input$AltHypo2 == "greater") {
+  #     print('greater')
+  #     resultTable <- ctable[, -2]
+  #   } else {
+  #     resultTable <- ctable
+  #   }
+  #   
+  #   # if (input$CIcheckbox2) {
+  #   #   ctable <- matrix(c("Rural", "Urban","Diff",round(result2$conf.int[1],2), 
+  #   #                      round(result3$conf.int[1],2), round(result4$conf.int[1],2),
+  #   #                      round(result2$conf.int[2],2), round(result3$conf.int[2],2),
+  #   #                      round(result4$conf.int[2],2), round(result2$p.value,2),
+  #   #                      round(result3$p.value,2), round(result4$p.value,2)), 
+  #   #                    nrow = 3)
+  #   #   colnames(ctable) <- c("Name", "Lower bound", "Upper bound",  "p-value")
+  #   # 
+  #   # }
+  #   print("final call")
+  #   print(resultTable)
+  #   if (input$CIcheckbox2) {
+  #     resultTable
+  #   } else {
+  #     NULL
+  #   }
+  # })
+  
+  observeEvent(
+    eventExpr = c(input$CIcheckbox2, input$AltHypo2),
+    handlerExpr = {
+      if (input$CIcheckbox2) {
+        result4 <- wilcox.test(
+          formula = NumOfSbls ~ Area,
+          data = Siblings_data,
+          paired = FALSE,
+          conf.level = input$level2/100,
+          conf.int = T, 
+          correct = F, 
+          exact = T,
+          alternative = input$AltHypo2
+        )
+        
+        ctable <- data.frame(
+          lower = round(result4$conf.int[1],2),
+          upper = round(result4$conf.int[2],2),
+          p.value = round(result4$p.value,2)
+        )
+        # print(ctable)
+        names(ctable) <- c("Lower Bound", "Upper Bound", "p-value")
+        
+        if (input$AltHypo2 == "less") {
+          print('less')
+          resultTable <- ctable[, -1]
+        } else if (input$AltHypo2 == "greater") {
+          print('greater')
+          resultTable <- ctable[, -2]
+        } else {
+          resultTable <- ctable
+        }
+        
+        # print("final call")
+        # print(resultTable)
+        
+        # output$CItable2 <- renderTable({resultTable})
+        output$CItable2 <- DT::renderDT(
+          expr = resultTable,
+          caption = "Confidence Interval and p-value", # Add a caption to your table
+          style = "bootstrap4", # You must use this style
+          rownames = TRUE,
+          options = list( # You must use these options
+            responsive = TRUE, # allows the data table to be mobile friendly
+            scrollX = TRUE, # allows the user to scroll through a wide table
+            columnDefs = list(  # These will set alignment of data values
+              # Notice the use of ncol on your data frame; leave the 1 as is.
+              list(className = 'dt-center', targets = 1:ncol(resultTable))
+            )
+          )
+        )
+      } else {
+        output$CItable2 <- NULL
+      }
     }
-  })
+  )
   
   # sample message
   observeEvent(input$new, {
