@@ -30,8 +30,10 @@ Siblings_data <- data.frame(
   NumOfSbls = c(Rural, Urban)
 )
 
-Diff <- Rural - Urban
-Diff <- data.frame("Rural - Urban" = c(Diff))
+Diff <- data.frame(
+  diff = c(as.vector(outer(Rural, Urban, FUN = "-")))
+)
+# Diff <- data.frame("Rural - Urban" = c(Diff))
 
 ## One sample population plot
 AirbnbData <- read_csv("Airbnb.csv") %>%
@@ -44,11 +46,12 @@ PricePlot <- ggplot(
   geom_histogram(
     mapping = aes(y = ..density..),
     fill = "skyblue",
-    col = "black"
+    col = "black",
+    boundary = 0
   ) +
   labs(
     title = "Population Histogram",
-    x = "Prices",
+    x = "Prices ($ per day)",
     y = "Density"
   ) +
   theme_bw() +
@@ -154,6 +157,29 @@ PopularPlot2 <- ggplot(
     )
   )
 
+PopularPlot3 <- ggplot(
+) +
+  geom_histogram(
+    data = AirbnbData2,
+    mapping = aes(x = availability_365),
+    fill = "skyblue",
+    col = "black",
+    boundary = 0
+  ) +
+  facet_wrap(~ neighbourhood,
+             nrow = 2) +
+  labs(
+    title = "Population Histogram",
+    x = "Number of Days available after March 1st, 2022",
+    y = "Count"
+  ) +
+  theme_bw() +
+  theme(
+    plot.caption = element_text(size = 18),
+    text = element_text(size = 18),
+    legend.position = "bottom"
+  )
+
 
 # Define UI for App ----
 ui <- list(
@@ -234,7 +260,7 @@ ui <- list(
           p(
             "This version of the app was developed and coded by Wanyi Su.",
             br(),
-            "I would like to extend a special thanks to Dennis K. Pearl and 
+            "I would like to extend a special thank to Dennis K. Pearl and 
             Neil J. Hatfield.",
             br(),
             br(),
@@ -243,7 +269,7 @@ ui <- list(
             citeApp(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 07/03/2022 by WS.")
+            div(class = "updated", "Last Update: 10/28/2022 by WS.")
           )
         ),
         #### Set up the Prerequisites Page ----
@@ -324,7 +350,7 @@ ui <- list(
                   width = 4,
                   wellPanel(
                     h3("Sample Info"),
-                    p("This data contains 15 observations of the posttest grip
+                    p("This data contains 15 observations of the post-test grip
                       strengths in the right arms of male freshmen in a study
                       of health dynamics. We shall test the null hypothesis"),
                     div("\\(H_0\\!:m = 50\\)"),
@@ -334,7 +360,7 @@ ui <- list(
                     sliderInput(
                       inputId = "level",
                       label = "Confidence Level",
-                      min = 85,
+                      min = 60,
                       max = 99,
                       value = 95,
                       post = "%"
@@ -352,9 +378,16 @@ ui <- list(
                 ),
                 column(
                   width = 8,
-                  plotOutput(outputId = "boxplot1", height = "300px"),
+                  plotOutput(outputId = "boxplot1", height = "150px"),
                   br(),
-                  plotOutput(outputId = "dotplot1", height = "250px")
+                  plotOutput(outputId = "dotplot1", height = "200px"),
+                  checkboxInput(
+                    inputId = "CIcheckbox",
+                    label = "Results table",
+                    value = FALSE,
+                    width = "100%"
+                  ),
+                  DT::DTOutput(outputId = "CItable")
                 )
               ),
                 # h3("Sample  Boxplot"),
@@ -370,13 +403,13 @@ ui <- list(
                 #   width = 8,
                 #   plotOutput(outputId = "dotplot1", height = "200px")
                 # ),
-                  checkboxInput(
-                    inputId = "CIcheckbox",
-                    label = "Results table",
-                    value = FALSE,
-                    width = "100%"
-                  ),
-              DT::DTOutput(outputId = "CItable")
+              #     checkboxInput(
+              #       inputId = "CIcheckbox",
+              #       label = "Results table",
+              #       value = FALSE,
+              #       width = "100%"
+              #     ),
+              # DT::DTOutput(outputId = "CItable")
               # tableOutput(outputId = "CItable")
             ),
             tabPanel(
@@ -401,7 +434,7 @@ ui <- list(
                     sliderInput(
                       inputId = "level2",
                       label = "Confidence Level",
-                      min = 85,
+                      min = 60,
                       max = 99,
                       value = 95,
                       post = "%"
@@ -423,7 +456,7 @@ ui <- list(
                   plotOutput(outputId = "dotplot2", height = "250px")
                 )
               ),
-              plotOutput(outputId = "mixplot", height = "300px"),
+              plotOutput(outputId = "mixplot", height = "500px"),
               checkboxInput(
                 inputId = "CIcheckbox2",
                 label = "Results table",
@@ -497,8 +530,7 @@ ui <- list(
               p(
                 id = "mathPopPara",
                 "The population chart shows the distribution of all airbnb prices,
-                N = 1,562 rooms. The population median is the line in the middle 
-                of the box, \\(m = 89\\)."
+                N = 1,562 rooms."
               )
             )
           ),
@@ -506,7 +538,7 @@ ui <- list(
           fluidRow(
             column(
               width = 6,
-              plotOutput("sampMedian"),
+              plotOutput("sampMedian", height = "200px"),
               tags$script(HTML(
                 "$(document).ready(function() {
               document.getElementById('sampMean').setAttribute('aria-label',
@@ -542,13 +574,12 @@ ui <- list(
             collapsible = TRUE,
             collapsed = FALSE,
             width = "100%",
-            p("A researcher plans to take a random sample of size n Airbnbs 
-              to do a test about their popularity, that is, the number of days 
-              available in the rest of 2022 after March 1st. The researcher
-              makes a confidence interval for difference between the available 
-              days for Airbnbs in two areas: near north side and in west town. 
-              These data are about Airbnbs in Chicago, which is the same as in 
-              previous page.")
+            p("A researcher plans to take a random sample of size n Airbnbs from
+              two areas, near north side and in west town, to do a test about 
+              their popularity, that is, the number of days available in the rest 
+              of 2022 after March 1st. The researcher makes a confidence interval 
+              for difference between the available days. These data are about 
+              Airbnbs in Chicago, which is the same as in previous page.")
           ),
           fluidRow(
             column(
@@ -585,8 +616,9 @@ ui <- list(
             ),
             column(
               width = 8,
-              plotOutput(outputId = "popMedian2", height = "200px"),
-              plotOutput(outputId = "popMedian3", height = "200px"),
+              # plotOutput(outputId = "popMedian2", height = "200px"),
+              # plotOutput(outputId = "popMedian3", height = "200px"),
+              plotOutput(outputId = "popMedian4", height = "400px"),
               tags$script(HTML(
                 "$(document).ready(function() {
                 document.getElementById('popMean').setAttribute('aria-labelledby',
@@ -607,7 +639,7 @@ ui <- list(
           fluidRow(
             column(
               width = 6,
-              plotOutput("sampMedian2"),
+              plotOutput("sampMedian2", height = "200px"),
               tags$script(HTML(
                 "$(document).ready(function() {
               document.getElementById('sampMean').setAttribute('aria-label',
@@ -718,7 +750,7 @@ server <- function(input, output, session) {
                                exact = T,
                                alternative = input$AltHypo)
           ggplot(ARM_data, aes(y = Grip_Strength)) + 
-            geom_boxplot() +
+            geom_boxplot(lwd = 1, fatten = 2) +
             coord_flip() +
             labs(
               title = "Boxplot of Grip Strength",
@@ -735,8 +767,8 @@ server <- function(input, output, session) {
               axis.text.y = element_blank()
             ) +
             geom_rect(fill="purple",alpha=0.03,
-                      aes(xmin=-0.375,
-                          xmax=0.375,
+                      aes(xmin=-0.2,
+                          xmax=0.2,
                           ymin=ifelse(result$conf.int[1] < 0,
                                       0,
                                       result$conf.int[1]),
@@ -824,7 +856,7 @@ server <- function(input, output, session) {
   # })
   
   observeEvent(
-    eventExpr = c(input$CIcheckbox, input$AltHypo),
+    eventExpr = c(input$CIcheckbox, input$AltHypo, input$level),
     handlerExpr = {
       if (input$CIcheckbox) {
         result <- wilcox.test(
@@ -843,7 +875,9 @@ server <- function(input, output, session) {
           p.value = round(result$p.value,2)
         )
         # print(ctable)
-        names(ctable) <- c("Lower Bound", "Upper Bound", "p-value")
+        names(ctable) <- c(paste0(input$level,"% Lower Bound"),
+                           paste0(input$level,"% Upper Bound"), 
+                           "p-value")
         
         if (input$AltHypo == "less") {
           print('less')
@@ -864,9 +898,15 @@ server <- function(input, output, session) {
           caption = "Confidence Interval and p-value", # Add a caption to your table
           style = "bootstrap4", # You must use this style
           rownames = TRUE,
-          options = list( # You must use these options
-            responsive = TRUE, # allows the data table to be mobile friendly
-            scrollX = TRUE, # allows the user to scroll through a wide table
+          options = list(
+            responsive = TRUE,
+            scrollX = TRUE,
+            ordering = FALSE,
+            paging = FALSE,
+            lengthChange = FALSE,
+            pageLength = 1,
+            searching = FALSE,
+            info = FALSE,
             columnDefs = list(  # These will set alignment of data values
               # Notice the use of ncol on your data frame; leave the 1 as is.
               list(className = 'dt-center', targets = 1:ncol(resultTable))
@@ -901,12 +941,13 @@ server <- function(input, output, session) {
                                 exact = F,
                                 alternative = input$AltHypo2)
           ggplot(Siblings_data, aes(x = Area, y = NumOfSbls)) + 
-            geom_boxplot() +
+            geom_boxplot(lwd = 1, fatten = 2) +
             coord_flip() +
             theme_bw() +
             labs(
               title = "Boxplot of Number of Siblings by Area",
-              y = "Number of Siblings"
+              y = "Number of Siblings",
+              x = "Rural         Urban"
             ) +
             theme(
               plot.caption = element_text(size = 18),
@@ -973,43 +1014,47 @@ server <- function(input, output, session) {
               y = NULL
             ) +
             scale_fill_manual(values = c("red", "blue")) +
-            geom_vline(
-              mapping = aes(xintercept = round(result2$conf.int[1],2),
-                            colour = "CI"),
-              size = 1.25,
-              alpha = 1
-            ) +
-            geom_vline(
-              mapping = aes(xintercept = round(result2$conf.int[2],2),
-                            color = "CI"),
-              size = 1.25,
-              alpha = 0.55
-            ) +
-            geom_vline(
-              mapping = aes(xintercept = round(result3$conf.int[1],2),
-                            colour = "CI2"),
-              size = 1.25,
-              alpha = 1
-            ) +
-            geom_vline(
-              mapping = aes(xintercept = round(result3$conf.int[2],2),
-                            color = "CI2"),
-              size = 1.25,
-              alpha = 0.55
-            ) +
-            scale_color_manual(
-              name = NULL,
-              labels = c(
-                "CI" = "CI for\nRural",
-                "CI2" = "CI for\nUrban"
-              ),
-              values = c(
-                "CI" = "red",
-                "CI2" = "blue"
-              )) +
+            # geom_vline(
+            #   mapping = aes(xintercept = round(result2$conf.int[1],2),
+            #                 colour = "CI"),
+            #   size = 1.25,
+            #   alpha = 1
+            # ) +
+            # geom_vline(
+            #   mapping = aes(xintercept = round(result2$conf.int[2],2),
+            #                 color = "CI"),
+            #   size = 1.25,
+            #   alpha = 0.55
+            # ) +
+            # geom_vline(
+            #   mapping = aes(xintercept = round(result3$conf.int[1],2),
+            #                 colour = "CI2"),
+            #   size = 1.25,
+            #   alpha = 1
+            # ) +
+            # geom_vline(
+            #   mapping = aes(xintercept = round(result3$conf.int[2],2),
+            #                 color = "CI2"),
+            #   size = 1.25,
+            #   alpha = 0.55
+            # ) +
+            # scale_color_manual(
+            #   name = NULL,
+            #   labels = c(
+            #     "CI" = "CI for\nRural",
+            #     "CI2" = "CI for\nUrban"
+            #   ),
+            #   values = c(
+            #     "CI" = "red",
+            #     "CI2" = "blue"
+            #   )) +
             geom_dotplot(binwidth = 0.15,
+                         method = "histodot",
                          right = FALSE,
-                         alpha = 0.55)
+                         binpositions = "all",
+                         alpha = 0.55,
+                         stackgroups = FALSE,
+                         position = position_dodge(width = 0.27))
         }
       )
     }
@@ -1030,8 +1075,8 @@ server <- function(input, output, session) {
                                 correct = T, 
                                 exact = F,
                                 alternative = input$AltHypo2)
-          ggplot(Diff, aes(x = Rural - Urban)) + 
-            geom_boxplot() +
+          ggplot(Diff, aes(x = diff)) + 
+            geom_boxplot(lwd = 1, fatten = 2) +
             theme_bw() +
             theme(
               plot.caption = element_text(size = 18),
@@ -1042,19 +1087,20 @@ server <- function(input, output, session) {
               axis.text.y = element_blank()
             ) +
             labs(
-              title = "Boxplot of the difference of number of siblings between Areas",
+              title = "Boxplot of the difference of number of siblings between areas for all (rural, urban) pairs",
               x = "Rural - Urban",
               y = NULL
             ) +
             geom_rect(fill="purple",alpha=0.03,
                       aes(xmin=result4$conf.int[1],
                           xmax=result4$conf.int[2],
-                          ymin=-0.375,
-                          ymax=0.375)) +
-            geom_dotplot(binwidth = 0.2,
-                         stackratio = 1,
+                          ymin=-0.2,
+                          ymax=0.2)) +
+            geom_dotplot(binwidth = 0.1,
+                         stackratio = 0.8,
                          right = FALSE,
-                         stackdir = "center")
+                         stackdir = "center",
+                         alpha = 0.5)
         }
       )
     }
@@ -1125,7 +1171,7 @@ server <- function(input, output, session) {
   # })
   
   observeEvent(
-    eventExpr = c(input$CIcheckbox2, input$AltHypo2),
+    eventExpr = c(input$CIcheckbox2, input$AltHypo2, input$level2),
     handlerExpr = {
       if (input$CIcheckbox2) {
         result4 <- wilcox.test(
@@ -1142,10 +1188,12 @@ server <- function(input, output, session) {
         ctable <- data.frame(
           lower = round(result4$conf.int[1],2),
           upper = round(result4$conf.int[2],2),
-          p.value = round(result4$p.value,2)
+          p.value = signif(result4$p.value,2)
         )
         # print(ctable)
-        names(ctable) <- c("Lower Bound", "Upper Bound", "p-value")
+        names(ctable) <- c(paste0(input$level2,"% Lower Bound"),
+                           paste0(input$level2,"% Upper Bound"), 
+                           "p-value")
         
         if (input$AltHypo2 == "less") {
           print('less')
@@ -1166,11 +1214,16 @@ server <- function(input, output, session) {
           caption = "Confidence Interval and p-value", # Add a caption to your table
           style = "bootstrap4", # You must use this style
           rownames = TRUE,
-          options = list( # You must use these options
-            responsive = TRUE, # allows the data table to be mobile friendly
-            scrollX = TRUE, # allows the user to scroll through a wide table
-            columnDefs = list(  # These will set alignment of data values
-              # Notice the use of ncol on your data frame; leave the 1 as is.
+          options = list(
+            responsive = TRUE,
+            scrollX = TRUE,
+            ordering = FALSE,
+            paging = FALSE,
+            lengthChange = FALSE,
+            pageLength = 1,
+            searching = FALSE,
+            info = FALSE,
+            columnDefs = list(
               list(className = 'dt-center', targets = 1:ncol(resultTable))
             )
           )
@@ -1184,13 +1237,13 @@ server <- function(input, output, session) {
   # sample message
   observeEvent(input$new, {
     output$sampleMessage <- renderUI({
-      "Click on the confidence intervals (on the right) to view the boxplot of
+      "Click on one of the confidence intervals (on the right) to view the boxplot of
       the sample on the left."
     })
     
     output$sampleColors <- renderUI({
-      "The shaded region on the boxplot represent the confidence interval 
-      corresponding to the plot on the right. It will change colors (red or blue) 
+      "The shaded region on the boxplot represents the confidence interval 
+      corresponding to the hilighted intervalon the right. It will change colors (red or blue) 
       depending on whether the confidence interval constructed from the sample 
       contains the population median."
     })
@@ -1352,7 +1405,7 @@ server <- function(input, output, session) {
       labs(
         title = paste0(input$level3, "% Confidence Intervals for the Median"),
         x = NULL,
-        y = "Prices"
+        y = "Prices ($ per day)"
       ) +
       theme_bw() +
       theme(
@@ -1386,55 +1439,56 @@ server <- function(input, output, session) {
                            dplyr::filter(index == isolate(selectedSample())),
               mapping = aes(y = price),
               bins = 15,
-              col = "black"
+              col = "black",
+              lwd = 1, fatten = 2,
             ) +
-            geom_rect(fill = OneSampleColor(),
-                      alpha = 0.5,
-                      data = Intervals() %>%
-                        dplyr::filter(index == isolate(selectedSample())),
-                      mapping = aes(xmin=-0.375,
-                                    xmax=0.375,
-                                    ymin=lowerbound,
-                                    ymax=upperbound)
-            ) +
-            geom_hline(
-              mapping = aes(yintercept = suppressWarnings(wilcox.test((Samples() %>%
-                                                                         dplyr::filter(
-                                                                           index == isolate(selectedSample())))$price,
-                                                                      conf.level = 0.95,
-                                                                      conf.int = T)$estimate), 
-                            color = "Est"),
-              size = 1
-            ) +
-            geom_hline(
-              mapping = aes(yintercept = 56, color = "pop"),
-              size = 1
-            ) +
-            coord_flip() +
-            labs(
-              title = "Boxplot of Selected Sample",
-              y = "Prices"
-            ) +
-            theme_bw() +
-            theme(
-              plot.caption = element_text(size = 18),
-              text = element_text(size = 18),
-              axis.title = element_text(size = 16),
-              legend.position = "bottom",
-              axis.ticks.y = element_blank(),
-              axis.text.y = element_blank()
-            ) +
-            scale_color_manual(
-              name = NULL,
-              labels = c(
-                "Est" = "Point Estimate",
-                "pop" = "Population median"
-              ),
-              values = c(
-                "Est" = "red",
-                "pop" = boastPalette[3]
+              geom_rect(fill = OneSampleColor(),
+                        alpha = 0.5,
+                        data = Intervals() %>%
+                          dplyr::filter(index == isolate(selectedSample())),
+                        mapping = aes(xmin=-0.2,
+                                      xmax=0.2,
+                                      ymin=lowerbound,
+                                      ymax=upperbound)
+              ) +
+              geom_hline(
+                mapping = aes(yintercept = suppressWarnings(wilcox.test((Samples() %>%
+                                                                           dplyr::filter(
+                                                                             index == isolate(selectedSample())))$price,
+                                                                        conf.level = 0.95,
+                                                                        conf.int = T)$estimate), 
+                              color = "Est"),
+                size = 1
+              ) +
+              geom_hline(
+                mapping = aes(yintercept = 56, color = "pop"),
+                size = 1
+              ) +
+              coord_flip() +
+              labs(
+                title = "Boxplot of Selected Sample",
+                y = "Prices ($ per day)"
+              ) +
+              theme_bw() +
+              theme(
+                plot.caption = element_text(size = 18),
+                text = element_text(size = 18),
+                axis.title = element_text(size = 16),
+                legend.position = "bottom",
+                axis.ticks.y = element_blank(),
+                axis.text.y = element_blank()
+              ) +
+              scale_color_manual(
+                name = NULL,
+                labels = c(
+                  "Est" = "Point Estimate",
+                  "pop" = "Population Median"
+                ),
+                values = c(
+                  "Est" = "red",
+                  "pop" = boastPalette[3]
+                )
               )
-            )
         }
       )
     }
@@ -1446,13 +1500,13 @@ server <- function(input, output, session) {
   # sample message
   observeEvent(input$new2, {
     output$sampleMessage2 <- renderUI({
-      "Click on the confidence intervals (on the right) to view the boxplot of
+      "Click on one of the confidence intervals (on the right) to view the boxplot of
       the sample on the left."
     })
     
     output$sampleColors2 <- renderUI({
-      "The shaded region on the boxplot represent the confidence interval 
-      corresponding to the plot on the right. It will change colors (red or blue) 
+      "The shaded region on the boxplot represents the confidence interval 
+      corresponding to the hilighted intervals on the right. It will change colors (red or blue) 
       depending on whether the confidence interval constructed from the sample 
       contains the population median."
     })
@@ -1465,6 +1519,10 @@ server <- function(input, output, session) {
   
   output$popMedian3 <- renderPlot({
     PopularPlot2 
+  })
+  
+  output$popMedian4 <- renderPlot({
+    PopularPlot3 
   })
   
   #### Generate 25 new samples ----
@@ -1672,6 +1730,7 @@ server <- function(input, output, session) {
               y = "# days available"
             ) +
             theme_bw() +
+            ylim(-400,400) +
             theme(
               plot.caption = element_text(size = 18),
               text = element_text(size = 18),
@@ -1703,14 +1762,16 @@ server <- function(input, output, session) {
                            dplyr::filter(i == isolate(selectedSample2())),
                          mapping = aes(y = diff),
                          bins = 15,
-                         col = "black"
+                         col = "black",
+                         lwd = 1, fatten = 2
             ) +
+            ylim(-400,400) +
             geom_rect(fill = OneSampleColor2(),
                       alpha = 0.5,
                       data = Intervals2() %>%
                         dplyr::filter(index == isolate(selectedSample2())),
-                      mapping = aes(xmin=-0.375,
-                                    xmax=0.375,
+                      mapping = aes(xmin=-0.2,
+                                    xmax=0.2,
                                     ymin=lowerbound,
                                     ymax=upperbound)
             ) +
