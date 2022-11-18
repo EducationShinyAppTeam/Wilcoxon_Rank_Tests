@@ -4,9 +4,9 @@ library(shinydashboard)
 library(shinyBS)
 library(shinyWidgets)
 library(boastUtils)
-library(ggplot2)
-library(truncnorm)
 library(dplyr)
+library(ggplot2)
+# library(truncnorm)
 library(readr)
 library(DT)
 
@@ -134,7 +134,7 @@ PopularPlot2 <- ggplot(
   ) +
   labs(
     # title = "Population Histogram",
-    x = "Number of Days available after March 1st, 2022",
+    x = "Number of days available after March 1st, 2022",
     y = "Count"
   ) +
   theme_bw() +
@@ -260,7 +260,7 @@ ui <- list(
           p(
             "This version of the app was developed and coded by Wanyi Su.",
             br(),
-            "I would like to extend a special thank to Dennis K. Pearl and 
+            "I would like to extend a special thanks to Dennis K. Pearl and 
             Neil J. Hatfield.",
             br(),
             br(),
@@ -269,7 +269,7 @@ ui <- list(
             citeApp(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 10/28/2022 by WS.")
+            div(class = "updated", "Last Update: 11/18/2022 by WS.")
           )
         ),
         #### Set up the Prerequisites Page ----
@@ -340,7 +340,7 @@ ui <- list(
             tabPanel(
               "One Sample Example",
               br(),
-              h2("Grip Strength data"),
+              h2("Grip Strength Data"),
               tags$ul(tags$li("This is based on Wilcoxon Signed Rank Test."),
                       tags$li("Adjust the sliders to change the confidence level."),
                       tags$li("Select the alternative hypothesis.")),
@@ -415,7 +415,7 @@ ui <- list(
             tabPanel(
               "Two Sample Example",
               br(),
-              h2("Siblings data"),
+              h2("Siblings Data"),
               tags$ul(tags$li("This is based on Wilcoxon Rank Sum Test."),
                       tags$li("Adjust the sliders to change the confidence level."),
                       tags$li("Select the alternative hypothesis.")),
@@ -456,14 +456,21 @@ ui <- list(
                   plotOutput(outputId = "dotplot2", height = "250px")
                 )
               ),
-              plotOutput(outputId = "mixplot", height = "500px"),
+              plotOutput(outputId = "mixplot", height = "250px"),
+              plotOutput(outputId = "mixplot2", height = "250px"),
               checkboxInput(
                 inputId = "CIcheckbox2",
                 label = "Results table",
                 value = FALSE,
                 width = "100%"
               ),
-              DT::DTOutput(outputId = "CItable2")
+              fluidRow(
+                column(
+                  width = 9,
+                  offset = 3,
+                  DT::DTOutput(outputId = "CItable2", width = "50%")
+                )
+              )
               # tableOutput(outputId = "CItable2")
             )
           )
@@ -479,11 +486,12 @@ ui <- list(
             collapsible = TRUE,
             collapsed = FALSE,
             width = "100%",
-            p("A researcher plans to take a random sample of size n Airbnbs to
+            p("A researcher plans to take a random sample of size n rentals to
               do a test about their prices. The researcher
               makes a confidence interval for the prices and compares it 
               to the median of $56 for the population
-              of airbnb prices. These data are about Airbnb prices in Chicago.")
+              of Airbnb rental prices. These data are about Airbnb rental prices
+              in Chicago.")
           ),
           fluidRow(
             column(
@@ -529,7 +537,8 @@ ui <- list(
               )),
               p(
                 id = "mathPopPara",
-                "The population chart shows the distribution of all airbnb prices,
+                "The population chart shows the distribution of all Airbnb rental
+                prices,
                 N = 1,562 rooms."
               )
             )
@@ -574,12 +583,12 @@ ui <- list(
             collapsible = TRUE,
             collapsed = FALSE,
             width = "100%",
-            p("A researcher plans to take a random sample of size n Airbnbs from
+            p("A researcher plans to take a random sample of size n rentals from
               two areas, near north side and in west town, to do a test about 
               their popularity, that is, the number of days available in the rest 
               of 2022 after March 1st. The researcher makes a confidence interval 
               for difference between the available days. These data are about 
-              Airbnbs in Chicago, which is the same as in previous page.")
+              rentals in Chicago, which is the same as in previous page.")
           ),
           fluidRow(
             column(
@@ -629,7 +638,7 @@ ui <- list(
                 id = "mathPopPara",
                 "The population chart shows the distribution of the number of days
                 available in the rest of 2022 after March 1st around two places. 
-                There are 669 airbnbs in West Town (WT) and 783 airbnbs in the 
+                There are 669 rentals in West Town (WT) and 783 rentals in the 
                 Near North Side (NNS). The population medians are 167 for WT and
                 245 for NNS."
               )
@@ -696,6 +705,12 @@ ui <- list(
           ),
           p(
             class = "hangingindent",
+            "Hadley Wickham, Jim Hester and Jennifer Bryan (2021). readr: Read 
+            Rectangular Text Data. R package version 2.1.1. 
+            https://CRAN.R-project.org/package=readr"
+          ),
+          p(
+            class = "hangingindent",
             "James J. Higgins. An introduction to modern nonparametric 
             statistics. Pacific Grove, 2004."
           ),
@@ -705,11 +720,11 @@ ui <- list(
             inputs widgets for shiny. (v 0.7.0). [R package]. Available from
             https://CRAN.R-project.org/package=shinyWidgets"
           ),
-          p(
-            class = "hangingindent",
-            "Robert V. Hogg, Elliot A. Tanis, and Dale L. Zimmerman. Probability
-            and statistical inference. Pearson Education, 2015."
-          ),
+          # p(
+          #   class = "hangingindent",
+          #   "Robert V. Hogg, Elliot A. Tanis, and Dale L. Zimmerman. Probability
+          #   and statistical inference. Pearson Education, 2015."
+          # ),
           p(
             class = "hangingindent",
             "Wickham, H. (2016). ggplot2: Elegant graphics for data analysis.
@@ -721,6 +736,12 @@ ui <- list(
             "Wickham, H., François, R., Henry, L., Müller, K. (2021). dplyr: A 
             Grammar of Data Manipulation. R package version 1.0.6. Available from
             https://CRAN.R-project.org/package=dplyr"
+          ),
+          p(
+            class = "hangingindent",
+            "Yihui Xie, Joe Cheng and Xianying Tan (2022). DT: A Wrapper of the 
+            JavaScript Library 'DataTables'. R package version 0.21.
+            https://CRAN.R-project.org/package=DT"
           ),
           br(),
           br(),
@@ -907,8 +928,8 @@ server <- function(input, output, session) {
             pageLength = 1,
             searching = FALSE,
             info = FALSE,
-            columnDefs = list(  # These will set alignment of data values
-              # Notice the use of ncol on your data frame; leave the 1 as is.
+            columnDefs = list(
+              list(visible = FALSE, targets = 0),
               list(className = 'dt-center', targets = 1:ncol(resultTable))
             )
           )
@@ -1076,7 +1097,12 @@ server <- function(input, output, session) {
                                 exact = F,
                                 alternative = input$AltHypo2)
           ggplot(Diff, aes(x = diff)) + 
-            geom_boxplot(lwd = 1, fatten = 2) +
+            geom_boxplot(lwd = 1, fatten = 2, width = 200) +
+            # geom_histogram(fill = "skyblue",
+            #                col = "black",
+            #                boundary = 0,
+            #                binwidth = 1,
+            #                alpha = 0.25) +
             theme_bw() +
             theme(
               plot.caption = element_text(size = 18),
@@ -1086,21 +1112,63 @@ server <- function(input, output, session) {
               axis.ticks.y = element_blank(),
               axis.text.y = element_blank()
             ) +
+            scale_x_continuous(
+              breaks = c(-8,-6,-4,-2,0,2,4,6,8)
+            )+
             labs(
-              title = "Boxplot of the difference of number of siblings between areas for all (rural, urban) pairs",
-              x = "Rural - Urban",
+              title = "Plots of the difference of number of siblings between areas for all (rural, urban) pairs",
+              x = NULL,
               y = NULL
             ) +
-            geom_rect(fill="purple",alpha=0.03,
+            geom_rect(fill="purple",alpha=0.007,
                       aes(xmin=result4$conf.int[1],
                           xmax=result4$conf.int[2],
-                          ymin=-0.2,
-                          ymax=0.2)) +
-            geom_dotplot(binwidth = 0.1,
-                         stackratio = 0.8,
-                         right = FALSE,
-                         stackdir = "center",
-                         alpha = 0.5)
+                          ymin=-80,
+                          ymax=80))
+            # geom_dotplot(binwidth = 0.1,
+            #              stackratio = 0.8,
+            #              right = FALSE,
+            #              stackdir = "center",
+            #              alpha = 0.5)
+        }
+      )
+    }
+  )
+  
+  observeEvent(
+    eventExpr = c(input$level2, input$AltHypo2),
+    handlerExpr = {
+      output$mixplot2 <- renderPlot(
+        expr = {
+          result4 <- wilcox.test(NumOfSbls ~ Area,
+                                 data = Siblings_data,
+                                 paired = FALSE,
+                                 conf.level = input$level2/100,
+                                 conf.int = T, 
+                                 correct = T, 
+                                 exact = F,
+                                 alternative = input$AltHypo2)
+          ggplot(Diff, aes(x = diff)) + 
+            geom_histogram(fill = "skyblue",
+                           col = "black",
+                           boundary = 0,
+                           binwidth = 1) +
+            theme_bw() +
+            scale_x_continuous(
+              breaks = c(-8,-6,-4,-2,0,2,4,6,8)
+            )+
+            theme(
+              plot.caption = element_text(size = 18),
+              text = element_text(size = 18),
+              axis.title = element_text(size = 16),
+              legend.position = "bottom",
+              axis.ticks.y = element_blank(),
+              axis.text.y = element_blank()
+            ) +
+            labs(
+              x = "Rural - Urban",
+              y = NULL
+            ) 
         }
       )
     }
@@ -1188,7 +1256,11 @@ server <- function(input, output, session) {
         ctable <- data.frame(
           lower = round(result4$conf.int[1],2),
           upper = round(result4$conf.int[2],2),
-          p.value = signif(result4$p.value,2)
+          p.value = if (input$AltHypo2 == "less") {
+            as.numeric(substr(as.character(signif(result4$p.value,4)),1,4))
+          }
+          else {signif(result4$p.value,2)
+            }
         )
         # print(ctable)
         names(ctable) <- c(paste0(input$level2,"% Lower Bound"),
@@ -1224,6 +1296,7 @@ server <- function(input, output, session) {
             searching = FALSE,
             info = FALSE,
             columnDefs = list(
+              list(visible = FALSE, targets = 0),
               list(className = 'dt-center', targets = 1:ncol(resultTable))
             )
           )
