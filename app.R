@@ -7,7 +7,7 @@ library(boastUtils)
 library(dplyr)
 library(ggplot2)
 # library(truncnorm)
-library(readr)
+#library(readr)
 library(DT)
 
 # Load additional dependencies and setup functions
@@ -16,16 +16,16 @@ library(DT)
 # Load Data ----
 
 ARM_data <- data.frame (Student = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15),
-                        Grip_Strength = c(58.0, 52.5, 46.0, 57.5, 52.0, 45.5, 
-                                          65.5, 71.0, 57.0, 54.0, 48.0, 58.5, 
+                        Grip_Strength = c(58.0, 52.5, 46.0, 57.5, 52.0, 45.5,
+                                          65.5, 71.0, 57.0, 54.0, 48.0, 58.5,
                                           35.5, 44.0, 53.0))
 
 
 
 Rural <- c(3,2,1,1,2,1,3,2,2,2,2,5,1,4,1,1,1,1,6,2,2,2,1,1)
-Urban <- c(1,0,1,1,0,0,1,1,1,8,1,1,1,0,1,1,2) 
-Siblings_data <- data.frame( 
-  Area = c(rep("Rural", times=length(Rural)), 
+Urban <- c(1,0,1,1,0,0,1,1,1,8,1,1,1,0,1,1,2)
+Siblings_data <- data.frame(
+  Area = c(rep("Rural", times=length(Rural)),
            rep("Urban", times=length(Urban))),
   NumOfSbls = c(Rural, Urban)
 )
@@ -36,7 +36,7 @@ Diff <- data.frame(
 # Diff <- data.frame("Rural - Urban" = c(Diff))
 
 ## One sample population plot
-AirbnbData <- read_csv("Airbnb.csv") %>%
+AirbnbData <- read.csv("Airbnb.csv") %>%
   dplyr::filter(room_type == "Private room")
 
 PricePlot <- ggplot(
@@ -44,10 +44,11 @@ PricePlot <- ggplot(
   mapping = aes(x = price)
 ) +
   geom_histogram(
-    mapping = aes(y = ..density..),
+    mapping = aes(y = after_stat(density)),
     fill = "skyblue",
     col = "black",
-    boundary = 0
+    boundary = 0,
+    bins = 30
   ) +
   labs(
     title = "Population Histogram",
@@ -61,15 +62,15 @@ PricePlot <- ggplot(
     axis.title = element_text(size = 16)
   )
 
-## Two sample population plot 
+## Two sample population plot
 
-AirbnbData2 <- read_csv("Airbnb.csv") %>%
+AirbnbData2 <- read.csv("Airbnb.csv") %>%
   dplyr::filter(neighbourhood == "Near North Side" | neighbourhood == "West Town")
 
-AirbnbDataNorth <- read_csv("Airbnb.csv") %>%
+AirbnbDataNorth <- read.csv("Airbnb.csv") %>%
   dplyr::filter(neighbourhood == "Near North Side")
 
-AirbnbDataWest <- read_csv("Airbnb.csv") %>%
+AirbnbDataWest <- read.csv("Airbnb.csv") %>%
   dplyr::filter(neighbourhood == "West Town")
 
 
@@ -84,7 +85,8 @@ PopularPlot1 <- ggplot(
     data = AirbnbDataNorth,
     mapping = aes(x = availability_365),
     fill = "skyblue",
-    col = "black"
+    col = "black",
+    bins = 30
   ) +
   # geom_histogram(
   #   data = AirbnbDataWest,
@@ -105,7 +107,7 @@ PopularPlot1 <- ggplot(
     axis.title.x = element_blank()
     # axis.title = element_text(size = 16),
     # axis.ticks.y = element_blank()
-  ) 
+  )
   # scale_fill_manual(
   #   name = "Neighborhood",
   #   labels = c(
@@ -130,7 +132,8 @@ PopularPlot2 <- ggplot(
     data = AirbnbDataWest,
     mapping = aes(x = availability_365, fill = "West Town"),
     # fill = "purple",
-    col = "black"
+    col = "black",
+    bins = 30
   ) +
   labs(
     # title = "Population Histogram",
@@ -164,7 +167,8 @@ PopularPlot3 <- ggplot(
     mapping = aes(x = availability_365),
     fill = "skyblue",
     col = "black",
-    boundary = 0
+    boundary = 0,
+    bins = 30
   ) +
   facet_wrap(~ neighbourhood,
              nrow = 2) +
@@ -332,6 +336,7 @@ ui <- list(
         #### Note: you must have at least one of the following pages. You might
         #### have more than one type and/or more than one of the same type. This
         #### will be up to you and the goals for your app.
+ 
         #### Set up an Example Page ----
         tabItem(
           tabName = "example",
@@ -705,12 +710,6 @@ ui <- list(
           ),
           p(
             class = "hangingindent",
-            "Hadley Wickham, Jim Hester and Jennifer Bryan (2021). readr: Read 
-            Rectangular Text Data. R package version 2.1.1. 
-            https://CRAN.R-project.org/package=readr"
-          ),
-          p(
-            class = "hangingindent",
             "James J. Higgins. An introduction to modern nonparametric 
             statistics. Pacific Grove, 2004."
           ),
@@ -767,8 +766,8 @@ server <- function(input, output, session) {
                                mu = 50, 
                                conf.level = input$level/100,
                                conf.int = T, 
-                               correct = F, 
-                               exact = T,
+                               correct = T, 
+                               exact = F,
                                alternative = input$AltHypo)
           ggplot(ARM_data, aes(y = Grip_Strength)) + 
             geom_boxplot(lwd = 1, fatten = 2) +
@@ -809,8 +808,8 @@ server <- function(input, output, session) {
                                 mu = 0, 
                                 conf.level = input$level/100,
                                 conf.int = T, 
-                                correct = F, 
-                                exact = T,
+                                correct = T, 
+                                exact = F,
                                 alternative = input$AltHypo)
           ggplot(ARM_data, aes(x = Grip_Strength)) + 
             theme_bw() +
@@ -822,13 +821,13 @@ server <- function(input, output, session) {
             geom_vline(
               mapping = aes(xintercept = round(result$conf.int[1],2),
                             colour = "CI"),
-              size = 1.25,
+              linewidth = 1.25,
               alpha = 1
             ) +
             geom_vline(
               mapping = aes(xintercept = round(result$conf.int[2],2),
                             color = "CI"),
-              size = 1.25,
+              linewidth = 1.25,
               alpha = 1
             ) +
             
@@ -848,7 +847,7 @@ server <- function(input, output, session) {
               axis.ticks.y = element_blank(),
               axis.text.y = element_blank()
             ) +
-            geom_dotplot(binwidth = 1,
+            geom_dotplot(binwidth = 0.8,
                          stackratio = 1.5,
                          right = FALSE)
         }
@@ -885,8 +884,8 @@ server <- function(input, output, session) {
           mu = 50, 
           conf.level = input$level/100,
           conf.int = T, 
-          correct = F, 
-          exact = T,
+          correct = T, 
+          exact = F,
           alternative = input$AltHypo
           )
         
@@ -1450,13 +1449,13 @@ server <- function(input, output, session) {
       ) +
       geom_hline(
         mapping = aes(yintercept = 56, color = "zpop"),
-        size = 1.25,
+        linewidth = 1.25,
         alpha = 1
       ) +
       coord_flip() +
       scale_size_manual(
         values = c("TRUE" = 1.5, "FALSE" = .7),
-        guide = FALSE
+        guide = "none"
       ) +
       scale_color_manual(
         name = NULL,
@@ -1473,7 +1472,7 @@ server <- function(input, output, session) {
       ) +
       scale_alpha_manual(
         values = c("TRUE" = 1, "FALSE" = .5),
-        guide = FALSE
+        guide = "none"
       ) +
       labs(
         title = paste0(input$level3, "% Confidence Intervals for the Median"),
@@ -1511,7 +1510,7 @@ server <- function(input, output, session) {
             geom_boxplot(Samples() %>%
                            dplyr::filter(index == isolate(selectedSample())),
               mapping = aes(y = price),
-              bins = 15,
+              # bins = 15,
               col = "black",
               lwd = 1, fatten = 2,
             ) +
@@ -1531,11 +1530,11 @@ server <- function(input, output, session) {
                                                                         conf.level = 0.95,
                                                                         conf.int = T)$estimate), 
                               color = "Est"),
-                size = 1
+                linewidth = 1
               ) +
               geom_hline(
                 mapping = aes(yintercept = 56, color = "pop"),
-                size = 1
+                linewidth = 1
               ) +
               coord_flip() +
               labs(
@@ -1772,13 +1771,13 @@ server <- function(input, output, session) {
             ) +
             geom_hline(
               mapping = aes(yintercept = 0, color = "zpop"),
-              size = 1.25,
+              linewidth = 1.25,
               alpha = 1
             ) +
             coord_flip() +
             scale_size_manual(
               values = c("TRUE" = 1.5, "FALSE" = .7),
-              guide = FALSE
+              guide = "none"
             ) +
             scale_color_manual(
               name = NULL,
@@ -1795,7 +1794,7 @@ server <- function(input, output, session) {
             ) +
             scale_alpha_manual(
               values = c("TRUE" = 1, "FALSE" = .5),
-              guide = FALSE
+              guide = "none"
             ) +
             labs(
               title = paste0(input$level4, "% Confidence Intervals for the Median"),
@@ -1834,7 +1833,7 @@ server <- function(input, output, session) {
             geom_boxplot(Samples_diff() %>%
                            dplyr::filter(i == isolate(selectedSample2())),
                          mapping = aes(y = diff),
-                         bins = 15,
+                         # bins = 15,
                          col = "black",
                          lwd = 1, fatten = 2
             ) +
@@ -1859,11 +1858,11 @@ server <- function(input, output, session) {
                             conf.level = 0.95,
                             conf.int = T)$estimate),
                 color = "Est"),
-              size = 1
+              linewidth = 1
             ) +
             geom_hline(
               mapping = aes(yintercept = 0, color = "pop"),
-              size = 1
+              linewidth = 1
             ) +
             coord_flip() +
             labs(
