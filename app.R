@@ -108,17 +108,17 @@ PopularPlot1 <- ggplot(
     # axis.title = element_text(size = 16),
     # axis.ticks.y = element_blank()
   )
-  # scale_fill_manual(
-  #   name = "Neighborhood",
-  #   labels = c(
-  #     "Near North Side" = "Near North Side",
-  #     "West Town" = "West Town"
-  #   ),
-  #   values = c(
-  #     "Near North Side" = "skyblue",
-  #     "West Town" = "purple"
-  #   )
-  # )
+# scale_fill_manual(
+#   name = "Neighborhood",
+#   labels = c(
+#     "Near North Side" = "Near North Side",
+#     "West Town" = "West Town"
+#   ),
+#   values = c(
+#     "Near North Side" = "skyblue",
+#     "West Town" = "purple"
+#   )
+# )
 
 PopularPlot2 <- ggplot(
 ) +
@@ -336,7 +336,7 @@ ui <- list(
         #### Note: you must have at least one of the following pages. You might
         #### have more than one type and/or more than one of the same type. This
         #### will be up to you and the goals for your app.
- 
+        
         #### Set up an Example Page ----
         tabItem(
           tabName = "example",
@@ -395,19 +395,19 @@ ui <- list(
                   DT::DTOutput(outputId = "CItable")
                 )
               ),
-                # h3("Sample  Boxplot"),
-                # column(
-                #   width = 8,
-                #   plotOutput(outputId = "boxplot1", height = "300px")),
-                # br(),
-                # br(),
-                # br(),
-                # br(),
-                # h3("Sample  Dotplot"),
-                # column(
-                #   width = 8,
-                #   plotOutput(outputId = "dotplot1", height = "200px")
-                # ),
+              # h3("Sample  Boxplot"),
+              # column(
+              #   width = 8,
+              #   plotOutput(outputId = "boxplot1", height = "300px")),
+              # br(),
+              # br(),
+              # br(),
+              # br(),
+              # h3("Sample  Dotplot"),
+              # column(
+              #   width = 8,
+              #   plotOutput(outputId = "dotplot1", height = "200px")
+              # ),
               #     checkboxInput(
               #       inputId = "CIcheckbox",
               #       label = "Results table",
@@ -754,7 +754,7 @@ ui <- list(
 
 # Define server logic ----
 server <- function(input, output, session) {
-
+  
   # This is for Example page
   ## Boxplot one-sample----
   observeEvent(
@@ -763,12 +763,12 @@ server <- function(input, output, session) {
       output$boxplot1 <- renderPlot(
         expr = {
           result <- wilcox.test(ARM_data$Grip_Strength, 
-                               mu = 50, 
-                               conf.level = input$level/100,
-                               conf.int = T, 
-                               correct = T, 
-                               exact = F,
-                               alternative = input$AltHypo)
+                                mu = 50, 
+                                conf.level = input$level/100,
+                                conf.int = T, 
+                                correct = T, 
+                                exact = F,
+                                alternative = input$AltHypo)
           ggplot(ARM_data, aes(y = Grip_Strength)) + 
             geom_boxplot(lwd = 1, fatten = 2) +
             coord_flip() +
@@ -854,7 +854,7 @@ server <- function(input, output, session) {
       )
     }
   )
-      
+  
   
   ## CI table one-sample ----
   
@@ -887,7 +887,7 @@ server <- function(input, output, session) {
           correct = T, 
           exact = F,
           alternative = input$AltHypo
-          )
+        )
         
         ctable <- data.frame(
           lower = round(result$conf.int[1],2),
@@ -947,19 +947,19 @@ server <- function(input, output, session) {
       output$boxplot2 <- renderPlot(
         expr = {
           result2 <- wilcox.test(Rural, 
-                                mu = 2, 
-                                conf.level = input$level2/100,
-                                conf.int = T, 
-                                correct = T, 
-                                exact = F,
-                                alternative = input$AltHypo2)
+                                 mu = 2, 
+                                 conf.level = input$level2/100,
+                                 conf.int = T, 
+                                 correct = T, 
+                                 exact = F,
+                                 alternative = input$AltHypo2)
           result3 <- wilcox.test(Urban, 
-                                mu = 1, 
-                                conf.level = input$level2/100,
-                                conf.int = T, 
-                                correct = T, 
-                                exact = F,
-                                alternative = input$AltHypo2)
+                                 mu = 1, 
+                                 conf.level = input$level2/100,
+                                 conf.int = T, 
+                                 correct = T, 
+                                 exact = F,
+                                 alternative = input$AltHypo2)
           ggplot(Siblings_data, aes(x = Area, y = NumOfSbls)) + 
             geom_boxplot(lwd = 1, fatten = 2) +
             coord_flip() +
@@ -1045,36 +1045,36 @@ server <- function(input, output, session) {
             #                 color = "CI"),
             #   size = 1.25,
             #   alpha = 0.55
-            # ) +
-            # geom_vline(
-            #   mapping = aes(xintercept = round(result3$conf.int[1],2),
-            #                 colour = "CI2"),
-            #   size = 1.25,
-            #   alpha = 1
-            # ) +
-            # geom_vline(
-            #   mapping = aes(xintercept = round(result3$conf.int[2],2),
-            #                 color = "CI2"),
-            #   size = 1.25,
-            #   alpha = 0.55
-            # ) +
-            # scale_color_manual(
-            #   name = NULL,
-            #   labels = c(
-            #     "CI" = "CI for\nRural",
-            #     "CI2" = "CI for\nUrban"
-            #   ),
-            #   values = c(
-            #     "CI" = "red",
-            #     "CI2" = "blue"
-            #   )) +
-            geom_dotplot(binwidth = 0.15,
-                         method = "histodot",
-                         right = FALSE,
-                         binpositions = "all",
-                         alpha = 0.55,
-                         stackgroups = FALSE,
-                         position = position_dodge(width = 0.27))
+          # ) +
+          # geom_vline(
+          #   mapping = aes(xintercept = round(result3$conf.int[1],2),
+          #                 colour = "CI2"),
+          #   size = 1.25,
+          #   alpha = 1
+          # ) +
+          # geom_vline(
+          #   mapping = aes(xintercept = round(result3$conf.int[2],2),
+          #                 color = "CI2"),
+          #   size = 1.25,
+          #   alpha = 0.55
+          # ) +
+          # scale_color_manual(
+          #   name = NULL,
+          #   labels = c(
+          #     "CI" = "CI for\nRural",
+          #     "CI2" = "CI for\nUrban"
+          #   ),
+          #   values = c(
+          #     "CI" = "red",
+          #     "CI2" = "blue"
+          #   )) +
+          geom_dotplot(binwidth = 0.15,
+                       method = "histodot",
+                       right = FALSE,
+                       binpositions = "all",
+                       alpha = 0.55,
+                       stackgroups = FALSE,
+                       position = position_dodge(width = 0.27))
         }
       )
     }
@@ -1088,13 +1088,13 @@ server <- function(input, output, session) {
       output$mixplot <- renderPlot(
         expr = {
           result4 <- wilcox.test(NumOfSbls ~ Area,
-                                data = Siblings_data,
-                                paired = FALSE,
-                                conf.level = input$level2/100,
-                                conf.int = T, 
-                                correct = T, 
-                                exact = F,
-                                alternative = input$AltHypo2)
+                                 data = Siblings_data,
+                                 paired = FALSE,
+                                 conf.level = input$level2/100,
+                                 conf.int = T, 
+                                 correct = T, 
+                                 exact = F,
+                                 alternative = input$AltHypo2)
           ggplot(Diff, aes(x = diff)) + 
             geom_boxplot(lwd = 1, fatten = 2, width = 200) +
             # geom_histogram(fill = "skyblue",
@@ -1124,11 +1124,11 @@ server <- function(input, output, session) {
                           xmax=result4$conf.int[2],
                           ymin=-80,
                           ymax=80))
-            # geom_dotplot(binwidth = 0.1,
-            #              stackratio = 0.8,
-            #              right = FALSE,
-            #              stackdir = "center",
-            #              alpha = 0.5)
+          # geom_dotplot(binwidth = 0.1,
+          #              stackratio = 0.8,
+          #              right = FALSE,
+          #              stackdir = "center",
+          #              alpha = 0.5)
         }
       )
     }
@@ -1259,7 +1259,7 @@ server <- function(input, output, session) {
             as.numeric(substr(as.character(signif(result4$p.value,4)),1,4))
           }
           else {signif(result4$p.value,2)
-            }
+          }
         )
         # print(ctable)
         names(ctable) <- c(paste0(input$level2,"% Lower Bound"),
@@ -1340,7 +1340,7 @@ server <- function(input, output, session) {
     temp
   }
   )
-    
+  
   
   ### Calculate the interval ----
   
@@ -1423,72 +1423,72 @@ server <- function(input, output, session) {
     handlerExpr = {
       output$CIplot <- renderPlot(
         expr = {
-    validate(
-      need(is.numeric(input$nsamp),
-           message = "Please input sample size"
-      )
-    )
-    
-    validate(
-      need(input$nsamp >= 2,
-           message = "Please input sample size larger than 2"
-      )
-    )
-    
-    ggplot(data = Intervals()) +
-      geom_pointrange(
-        mapping = aes(
-          x = index,
-          ymin = lowerbound,
-          ymax = upperbound,
-          y = SampleMedian,
-          colour = cover,
-          alpha = index == selectedSample(),
-          size = index == selectedSample()
-        )
-      ) +
-      geom_hline(
-        mapping = aes(yintercept = 56, color = "zpop"),
-        linewidth = 1.25,
-        alpha = 1
-      ) +
-      coord_flip() +
-      scale_size_manual(
-        values = c("TRUE" = 1.5, "FALSE" = .7),
-        guide = "none"
-      ) +
-      scale_color_manual(
-        name = NULL,
-        labels = c(
-          "TRUE" = "Captures",
-          "FALSE" = "Fails",
-          "zpop" = "Population Median"
-        ),
-        values = c(
-          "TRUE" = "dodgerblue3",
-          "FALSE" = "red",
-          "zpop" = boastPalette[3]
-        )
-      ) +
-      scale_alpha_manual(
-        values = c("TRUE" = 1, "FALSE" = .5),
-        guide = "none"
-      ) +
-      labs(
-        title = paste0(input$level3, "% Confidence Intervals for the Median"),
-        x = NULL,
-        y = "Prices ($ per day)"
-      ) +
-      theme_bw() +
-      theme(
-        plot.caption = element_text(size = 18),
-        text = element_text(size = 18),
-        axis.title = element_text(size = 16),
-        legend.position = "bottom",
-        axis.ticks.y = element_blank(),
-        axis.text.y = element_blank()
-      )
-  })})
+          validate(
+            need(is.numeric(input$nsamp),
+                 message = "Please input sample size"
+            )
+          )
+          
+          validate(
+            need(input$nsamp >= 2,
+                 message = "Please input sample size larger than 2"
+            )
+          )
+          
+          ggplot(data = Intervals()) +
+            geom_pointrange(
+              mapping = aes(
+                x = index,
+                ymin = lowerbound,
+                ymax = upperbound,
+                y = SampleMedian,
+                colour = cover,
+                alpha = index == selectedSample(),
+                size = index == selectedSample()
+              )
+            ) +
+            geom_hline(
+              mapping = aes(yintercept = 56, color = "zpop"),
+              linewidth = 1.25,
+              alpha = 1
+            ) +
+            coord_flip() +
+            scale_size_manual(
+              values = c("TRUE" = 1.5, "FALSE" = .7),
+              guide = "none"
+            ) +
+            scale_color_manual(
+              name = NULL,
+              labels = c(
+                "TRUE" = "Captures",
+                "FALSE" = "Fails",
+                "zpop" = "Population Median"
+              ),
+              values = c(
+                "TRUE" = "dodgerblue3",
+                "FALSE" = "red",
+                "zpop" = boastPalette[3]
+              )
+            ) +
+            scale_alpha_manual(
+              values = c("TRUE" = 1, "FALSE" = .5),
+              guide = "none"
+            ) +
+            labs(
+              title = paste0(input$level3, "% Confidence Intervals for the Median"),
+              x = NULL,
+              y = "Prices ($ per day)"
+            ) +
+            theme_bw() +
+            theme(
+              plot.caption = element_text(size = 18),
+              text = element_text(size = 18),
+              axis.title = element_text(size = 16),
+              legend.position = "bottom",
+              axis.ticks.y = element_blank(),
+              axis.text.y = element_blank()
+            )
+        })})
   
   ###Sample boxplot ----
   SelectedIndex <- reactiveVal(1)
@@ -1506,61 +1506,62 @@ server <- function(input, output, session) {
                  message = "Please input sample size larger than 2"
             )
           )
-            ggplot(NULL) +
+          ggplot(NULL) +
             geom_boxplot(Samples() %>%
                            dplyr::filter(index == isolate(selectedSample())),
-              mapping = aes(y = price),
-              # bins = 15,
-              col = "black",
-              lwd = 1, fatten = 2,
+                         mapping = aes(y = price),
+                         # bins = 15,
+                         col = "black",
+                         lwd = 1, fatten = 2,
             ) +
-              geom_rect(fill = OneSampleColor(),
-                        alpha = 0.5,
-                        data = Intervals() %>%
-                          dplyr::filter(index == isolate(selectedSample())),
-                        mapping = aes(xmin=-0.2,
-                                      xmax=0.2,
-                                      ymin=lowerbound,
-                                      ymax=upperbound)
-              ) +
-              geom_hline(
-                mapping = aes(yintercept = suppressWarnings(wilcox.test((Samples() %>%
-                                                                           dplyr::filter(
-                                                                             index == isolate(selectedSample())))$price,
-                                                                        conf.level = 0.95,
-                                                                        conf.int = T)$estimate), 
-                              color = "Est"),
-                linewidth = 1
-              ) +
-              geom_hline(
-                mapping = aes(yintercept = 56, color = "pop"),
-                linewidth = 1
-              ) +
-              coord_flip() +
-              labs(
-                title = "Boxplot of Selected Sample",
-                y = "Prices ($ per day)"
-              ) +
-              theme_bw() +
-              theme(
-                plot.caption = element_text(size = 18),
-                text = element_text(size = 18),
-                axis.title = element_text(size = 16),
-                legend.position = "bottom",
-                axis.ticks.y = element_blank(),
-                axis.text.y = element_blank()
-              ) +
-              scale_color_manual(
-                name = NULL,
-                labels = c(
-                  "Est" = "Point Estimate",
-                  "pop" = "Population Median"
-                ),
-                values = c(
-                  "Est" = "red",
-                  "pop" = boastPalette[3]
-                )
+            geom_rect(fill = OneSampleColor(),
+                      alpha = 0.5,
+                      data = Intervals() %>%
+                        dplyr::filter(index == isolate(selectedSample())),
+                      mapping = aes(xmin=-0.2,
+                                    xmax=0.2,
+                                    ymin=lowerbound,
+                                    ymax=upperbound)
+            ) +
+            geom_hline(
+              mapping = aes(yintercept = suppressWarnings(
+                wilcox.test((Samples() %>%
+                               dplyr::filter(
+                                 index == isolate(selectedSample())))$price,
+                            conf.level = 0.95,
+                            conf.int = T)$estimate), 
+                color = "Est"),
+              linewidth = 1
+            ) +
+            geom_hline(
+              mapping = aes(yintercept = 56, color = "pop"),
+              linewidth = 1
+            ) +
+            coord_flip() +
+            labs(
+              title = "Boxplot of Selected Sample",
+              y = "Prices ($ per day)"
+            ) +
+            theme_bw() +
+            theme(
+              plot.caption = element_text(size = 18),
+              text = element_text(size = 18),
+              axis.title = element_text(size = 16),
+              legend.position = "bottom",
+              axis.ticks.y = element_blank(),
+              axis.text.y = element_blank()
+            ) +
+            scale_color_manual(
+              name = NULL,
+              labels = c(
+                "Est" = "Point Estimate",
+                "pop" = "Population Median"
+              ),
+              values = c(
+                "Est" = "red",
+                "pop" = boastPalette[3]
               )
+            )
         }
       )
     }
@@ -1601,11 +1602,11 @@ server <- function(input, output, session) {
   west <- AirbnbData2 %>%
     select(neighbourhood, availability_365) %>%
     filter(neighbourhood == "West Town")
-
+  
   north <- AirbnbData2 %>%
     select(neighbourhood, availability_365) %>%
     filter(neighbourhood == "Near North Side")
-
+  
   Samples_west <- eventReactive(input$new2, {
     temp <- data.frame()
     for (i in 1:25) {
@@ -1617,7 +1618,7 @@ server <- function(input, output, session) {
     temp
   }
   )
-
+  
   Samples_north <- eventReactive(input$new2, {
     temp <- data.frame()
     for (i in 1:25) {
@@ -1629,7 +1630,7 @@ server <- function(input, output, session) {
     temp
   }
   )
-
+  
   Samples2 <- eventReactive(input$new2, {
     rbind(Samples_north(), Samples_west())
   }
@@ -1637,17 +1638,17 @@ server <- function(input, output, session) {
   
   North <- eventReactive(input$new2, {
     Samples_north() %>%
-    rename(availability_north = availability_365,
-           north = neighbourhood,
-           i = index)
+      rename(availability_north = availability_365,
+             north = neighbourhood,
+             i = index)
   }
   )
   
   West <- eventReactive(input$new2, {
     Samples_west() %>%
-    rename(availability_west = availability_365,
-           west = neighbourhood,
-           j = index)
+      rename(availability_west = availability_365,
+             west = neighbourhood,
+             j = index)
   }
   )
   
@@ -1656,10 +1657,10 @@ server <- function(input, output, session) {
       dplyr::mutate(diff = availability_north - availability_west)
   }
   )
-
-
+  
+  
   #### Calculate the interval ----
-
+  
   Intervals2 <- reactive({
     Samples2() %>%
       #dplyr::select(index, availability_365) %>%
@@ -1678,7 +1679,7 @@ server <- function(input, output, session) {
       mutate(cover = (lowerbound < 0) & (0 < upperbound))
   }
   )
-
+  
   ### Default as all the samples are selected ----
   ### TODO: What is this code's purpose?
   selected_sample2 <- 25
@@ -1694,7 +1695,7 @@ server <- function(input, output, session) {
     }
     selected_sample2
   })
-
+  
   # # OneSample <- reactive({
   # #   Samples() %>%
   # #     filter(index == selectedSample())
@@ -1705,10 +1706,10 @@ server <- function(input, output, session) {
     covers <- (Intervals2() %>% filter(index == selectedSample2()))$cover
     colors[as.character(covers)]
   })
-
+  
   ### Store xAPI interacted statement ----
   observeEvent(input$plot_click2, {
-
+    
     stmt2 <- boastUtils::generateStatement(
       session,
       verb = "interacted",
@@ -1717,10 +1718,10 @@ server <- function(input, output, session) {
       interactionType = "numeric",
       response = jsonlite::toJSON(input$plot_click2)
     )
-
+    
     boastUtils::storeStatement(session, stmt2)
   })
-
+  
   ### Text messages ----
   output$CoverageRate2 <- renderText({
     validate(
@@ -1728,7 +1729,7 @@ server <- function(input, output, session) {
            message = "Please input sample size"
       )
     )
-
+    
     paste0(
       sum(Intervals2()$cover),
       " of these ",
@@ -1738,7 +1739,7 @@ server <- function(input, output, session) {
       "%."
     )
   })
-
+  
   ### CIplot ----
   observeEvent(
     eventExpr = selectedSample2(),
@@ -1750,13 +1751,13 @@ server <- function(input, output, session) {
                  message = "Please input sample size"
             )
           )
-
+          
           validate(
             need(input$nsamp2 >= 2,
                  message = "Please input sample size larger than 2"
             )
           )
-
+          
           ggplot(data = Intervals2()) +
             geom_pointrange(
               mapping = aes(
@@ -1812,10 +1813,10 @@ server <- function(input, output, session) {
               axis.text.y = element_blank()
             )
         })})
-
+  
   ###Sample boxplot ----
   SelectedIndex <- reactiveVal(1)
-
+  
   observeEvent(
     eventExpr = selectedSample2(),
     handlerExpr = {
@@ -1850,11 +1851,11 @@ server <- function(input, output, session) {
             geom_hline(
               mapping = aes(yintercept = suppressWarnings(
                 wilcox.test(((Samples2() %>%
-                               dplyr::filter(
-                                 index == isolate(selectedSample2())))$availability_365) ~ 
+                                dplyr::filter(
+                                  index == isolate(selectedSample2())))$availability_365) ~ 
                               ((Samples2() %>%
-                              dplyr::filter(
-                                index == isolate(selectedSample2())))$neighbourhood),
+                                  dplyr::filter(
+                                    index == isolate(selectedSample2())))$neighbourhood),
                             conf.level = 0.95,
                             conf.int = T)$estimate),
                 color = "Est"),
@@ -1893,8 +1894,8 @@ server <- function(input, output, session) {
       )
     }
   )
-
-
+  
+  
   ## Set Go Button ----
   observeEvent(
     eventExpr = input$go,
@@ -1919,7 +1920,7 @@ server <- function(input, output, session) {
       )
     }
   )
-
+  
 }
 
 # Boast App Call ----
