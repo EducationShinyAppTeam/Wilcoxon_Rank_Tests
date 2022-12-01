@@ -15,31 +15,31 @@ library(DT)
 
 # Load Data ----
 
-ARM_data <- data.frame (Student = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15),
-                        Grip_Strength = c(58.0, 52.5, 46.0, 57.5, 52.0, 45.5,
+armData <- data.frame (student = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15),
+                        gripStrength = c(58.0, 52.5, 46.0, 57.5, 52.0, 45.5,
                                           65.5, 71.0, 57.0, 54.0, 48.0, 58.5,
                                           35.5, 44.0, 53.0))
 
 
 
-Rural <- c(3,2,1,1,2,1,3,2,2,2,2,5,1,4,1,1,1,1,6,2,2,2,1,1)
-Urban <- c(1,0,1,1,0,0,1,1,1,8,1,1,1,0,1,1,2)
-Siblings_data <- data.frame(
-  Area = c(rep("Rural", times=length(Rural)),
-           rep("Urban", times=length(Urban))),
-  NumOfSbls = c(Rural, Urban)
+rural <- c(3,2,1,1,2,1,3,2,2,2,2,5,1,4,1,1,1,1,6,2,2,2,1,1)
+urban <- c(1,0,1,1,0,0,1,1,1,8,1,1,1,0,1,1,2)
+siblingsData <- data.frame(
+  area = c(rep("rural", times=length(rural)),
+           rep("urban", times=length(urban))),
+  numOfSbls = c(rural, urban)
 )
 
-Diff <- data.frame(
-  diff = c(as.vector(outer(Rural, Urban, FUN = "-")))
+difference <- data.frame(
+  difference = c(as.vector(outer(rural, urban, FUN = "-")))
 )
 
 ## One sample population plot
-AirbnbData <- read.csv("Airbnb.csv") %>%
+airbnbData <- read.csv("Airbnb.csv") %>%
   dplyr::filter(room_type == "Private room")
 
-PricePlot <- ggplot(
-  data = AirbnbData,
+pricePlot <- ggplot(
+  data = airbnbData,
   mapping = aes(x = price)
 ) +
   geom_histogram(
@@ -63,17 +63,17 @@ PricePlot <- ggplot(
 
 ## Two sample population plot
 
-AirbnbData2 <- read.csv("Airbnb.csv") %>%
+airbnbData2 <- read.csv("Airbnb.csv") %>%
   dplyr::filter(neighbourhood == "Near North Side" | neighbourhood == "West Town")
 
-AirbnbDataNorth <- read.csv("Airbnb.csv") %>%
+airbnbDataNorth <- read.csv("Airbnb.csv") %>%
   dplyr::filter(neighbourhood == "Near North Side")
 
-AirbnbDataWest <- read.csv("Airbnb.csv") %>%
+airbnbDataWest <- read.csv("Airbnb.csv") %>%
   dplyr::filter(neighbourhood == "West Town")
 
 
-PopularPlot1 <- ggplot(
+popularPlot1 <- ggplot(
 ) +
   # geom_boxplot(
   #   mapping = aes(x = availability_365, y = neighbourhood),
@@ -81,14 +81,14 @@ PopularPlot1 <- ggplot(
   #   col = "black"
   # ) +
   geom_histogram(
-    data = AirbnbDataNorth,
+    data = airbnbDataNorth,
     mapping = aes(x = availability_365),
     fill = "skyblue",
     col = "black",
     bins = 30
   ) +
   # geom_histogram(
-  #   data = AirbnbDataWest,
+  #   data = airbnbDataWest,
   #   mapping = aes(x = availability_365, fill = "West Town"),
   #   # fill = "purple",
   #   col = "black"
@@ -119,17 +119,18 @@ PopularPlot1 <- ggplot(
 #   )
 # )
 
-PopularPlot2 <- ggplot(
+popularPlot2 <- ggplot(
 ) +
   # geom_histogram(
-  #   data = AirbnbDataNorth,
+  #   data = airbnbDataNorth,
   #   mapping = aes(x = availability_365, fill = "Near North Side"),
   #   # fill = "skyblue",
   #   col = "black"
   # ) +
   geom_histogram(
-    data = AirbnbDataWest,
-    mapping = aes(x = availability_365, fill = "West Town"),
+    data = airbnbDataWest,
+    mapping = aes(x = availability_365, 
+                  fill = "West Town"),
     # fill = "purple",
     col = "black",
     bins = 30
@@ -159,10 +160,10 @@ PopularPlot2 <- ggplot(
     )
   )
 
-PopularPlot3 <- ggplot(
+popularPlot3 <- ggplot(
 ) +
   geom_histogram(
-    data = AirbnbData2,
+    data = airbnbData2,
     mapping = aes(x = availability_365),
     fill = "skyblue",
     col = "black",
@@ -272,7 +273,7 @@ ui <- list(
             citeApp(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 11/30/2022 by WS.")
+            div(class = "updated", "Last Update: 12/01/2022 by WS.")
           )
         ),
         #### Set up the Prerequisites Page ----
@@ -304,13 +305,13 @@ ui <- list(
             collapsed = TRUE,
             width = '100%',
             "This test can be used to test the location of a single population 
-            median, m (including the special case of whether the difference 
+            median, m (including the special case of whether the differenceerence 
             between paired samples has a median of zero). The test works by 
             ranking all of the observations from smallest to largest and then 
             summing the ranks of those above the hypothesized median. The null 
             distribution of the statistic is the same for independent observations 
             arising from any continuous symmetric distribution. The test is often 
-            viewed as an alternative to the Student's one sample t-test that 
+            viewed as an alternative to the student's one sample t-test that 
             examines a null hypothesis about the mean assuming independent normally 
             distributed data. The assumptions for the Wilcoxon signed rank test 
             are then stronger than the sign test (which doesn't require symmetry) 
@@ -322,13 +323,13 @@ ui <- list(
             collapsible = TRUE,
             collapsed = TRUE,
             width = '100%',
-            "This test can be used to test the difference, m1 - m2, between the 
+            "This test can be used to test the differenceerence, m1 - m2, between the 
             population median of two independent samples (including the special 
-            case of whether the difference is zero). The test works by ranking 
+            case of whether the differenceerence is zero). The test works by ranking 
             all of the observations pooled from both samples combined and then 
             summing the ranks of those that came from one of the two samples. 
-            The test is often viewed as an alternative to the Student's two sample 
-            t-test that examines a null hypothesis about the difference in population 
+            The test is often viewed as an alternative to the student's two sample 
+            t-test that examines a null hypothesis about the differenceerence in population 
             means assuming independent normally distributed data."
           )
         ),
@@ -591,7 +592,7 @@ ui <- list(
               two areas, near north side and in west town, to do a test about 
               their popularity, that is, the number of days available in the rest 
               of 2022 after March 1st. The researcher makes a confidence interval 
-              for difference between the available days. These data are about 
+              for differenceerence between the available days. These data are about 
               rentals in Chicago, which is the same as in previous page.")
           ),
           fluidRow(
@@ -761,15 +762,18 @@ server <- function(input, output, session) {
     handlerExpr = {
       output$boxplot1 <- renderPlot(
         expr = {
-          result <- wilcox.test(ARM_data$Grip_Strength, 
-                                mu = 50, 
-                                conf.level = input$level/100,
-                                conf.int = T, 
-                                correct = T, 
-                                exact = F,
-                                alternative = input$AltHypo)
-          ggplot(ARM_data, aes(y = Grip_Strength)) + 
-            geom_boxplot(lwd = 1, fatten = 2) +
+          gripstrengthWilcoxon <- wilcox.test(
+            armData$gripStrength, 
+            mu = 50, 
+            conf.level = input$level/100,
+            conf.int = T, 
+            correct = T, 
+            exact = F,
+            alternative = input$AltHypo)
+          ggplot(armData, 
+                 aes(y = gripStrength)) + 
+            geom_boxplot(lwd = 1, 
+                         fatten = 2) +
             coord_flip() +
             labs(
               title = "Boxplot of Grip Strength",
@@ -785,13 +789,14 @@ server <- function(input, output, session) {
               axis.ticks.y = element_blank(),
               axis.text.y = element_blank()
             ) +
-            geom_rect(fill="purple",alpha=0.03,
+            geom_rect(fill="purple",
+                      alpha=0.03,
                       aes(xmin=-0.2,
                           xmax=0.2,
-                          ymin=ifelse(result$conf.int[1] < 0,
+                          ymin=ifelse(gripstrengthWilcoxon$conf.int[1] < 0,
                                       0,
-                                      result$conf.int[1]),
-                          ymax=result$conf.int[2]))
+                                      gripstrengthWilcoxon$conf.int[1]),
+                          ymax=gripstrengthWilcoxon$conf.int[2]))
         }
       )
     }
@@ -803,14 +808,16 @@ server <- function(input, output, session) {
     handlerExpr = {
       output$dotplot1 <- renderPlot(
         expr = {
-          result <- wilcox.test(ARM_data$Grip_Strength, 
-                                mu = 0, 
-                                conf.level = input$level/100,
-                                conf.int = T, 
-                                correct = T, 
-                                exact = F,
-                                alternative = input$AltHypo)
-          ggplot(ARM_data, aes(x = Grip_Strength)) + 
+          gripstrengthWilcoxon <- wilcox.test(
+            armData$gripStrength, 
+            mu = 0, 
+            conf.level = input$level/100,
+            conf.int = T, 
+            correct = T, 
+            exact = F,
+            alternative = input$AltHypo)
+          ggplot(armData, 
+                 aes(x = gripStrength)) + 
             theme_bw() +
             labs(
               title = "Dotplot of Grip Strength",
@@ -818,14 +825,16 @@ server <- function(input, output, session) {
               y = NULL
             ) +
             geom_vline(
-              mapping = aes(xintercept = round(result$conf.int[1],2),
+              mapping = aes(xintercept = round(gripstrengthWilcoxon$conf.int[1],2),
                             colour = "CI"),
               linewidth = 1.25,
               alpha = 1
             ) +
             geom_vline(
-              mapping = aes(xintercept = round(result$conf.int[2],2),
-                            color = "CI"),
+              mapping = aes(
+                xintercept = round(
+                  gripstrengthWilcoxon$conf.int[2],2),
+                color = "CI"),
               linewidth = 1.25,
               alpha = 1
             ) +
@@ -858,7 +867,7 @@ server <- function(input, output, session) {
   ## CI table one-sample ----
   
   # output$CItable <- renderTable({
-  #   result <- wilcox.test(ARM_data$Grip_Strength, 
+  #   gripstrengthWilcoxon <- wilcox.test(armData$gripStrength, 
   #                         mu = 50, 
   #                         conf.level = input$level/100,
   #                         conf.int = T, 
@@ -866,8 +875,8 @@ server <- function(input, output, session) {
   #                         exact = T,
   #                         alternative = input$AltHypo)
   #   if (input$CIcheckbox) {
-  #     ctable <- matrix(c(round(result$conf.int[1],2), round(result$conf.int[2],2),
-  #                        round(result$p.value,2)), 
+  #     ctable <- matrix(c(round(gripstrengthWilcoxon$conf.int[1],2), round(gripstrengthWilcoxon$conf.int[2],2),
+  #                        round(gripstrengthWilcoxon$p.value,2)), 
   #                      nrow = 1)
   #     colnames(ctable) <- c("Lower bound", "Upper bound",  "p-value")
   #     ctable
@@ -878,8 +887,8 @@ server <- function(input, output, session) {
     eventExpr = c(input$CIcheckbox, input$AltHypo, input$level),
     handlerExpr = {
       if (input$CIcheckbox) {
-        result <- wilcox.test(
-          ARM_data$Grip_Strength, 
+        gripstrengthWilcoxon <- wilcox.test(
+          armData$gripStrength, 
           mu = 50, 
           conf.level = input$level/100,
           conf.int = T, 
@@ -889,9 +898,9 @@ server <- function(input, output, session) {
         )
         
         ctable <- data.frame(
-          lower = round(result$conf.int[1],2),
-          upper = round(result$conf.int[2],2),
-          p.value = round(result$p.value,2)
+          lower = round(gripstrengthWilcoxon$conf.int[1],2),
+          upper = round(gripstrengthWilcoxon$conf.int[2],2),
+          p.value = round(gripstrengthWilcoxon$p.value,2)
         )
         # print(ctable)
         names(ctable) <- c(paste0(input$level,"% Lower Bound"),
@@ -927,8 +936,10 @@ server <- function(input, output, session) {
             searching = FALSE,
             info = FALSE,
             columnDefs = list(
-              list(visible = FALSE, targets = 0),
-              list(className = 'dt-center', targets = 1:ncol(resultTable))
+              list(visible = FALSE, 
+                   targets = 0),
+              list(className = 'dt-center', 
+                   targets = 1:ncol(resultTable))
             )
           )
         )
@@ -946,7 +957,7 @@ server <- function(input, output, session) {
       ### Get Values from Wilcoxon ----
       ruralWilcoxon <- suppressWarnings(
         wilcox.test(
-          x = Rural, 
+          x = rural, 
           mu = 2, 
           conf.level = input$level2/100,
           conf.int = T, 
@@ -957,7 +968,7 @@ server <- function(input, output, session) {
       )
       urbanWilcoxon <- suppressWarnings(
         wilcox.test(
-          x = Urban, 
+          x = urban, 
           mu = 1, 
           conf.level = input$level2/100,
           conf.int = T, 
@@ -970,11 +981,16 @@ server <- function(input, output, session) {
       ### Two sample box plot ----
       output$boxplot2 <- renderPlot(
         expr = {
-          ggplot(data = Siblings_data, mapping = aes(y = Area, x = NumOfSbls)) + 
-            geom_boxplot(lwd = 1, fatten = 2) +
+          ggplot(
+            data = siblingsData, 
+            mapping = aes(
+              y = area, 
+              x = numOfSbls)) + 
+            geom_boxplot(lwd = 1, 
+                         fatten = 2) +
             theme_bw() +
             labs(
-              title = "Boxplot of Number of Siblings by Area",
+              title = "Boxplot of Number of Siblings by area",
               x = "Number of Siblings",
               y = NULL
             ) +
@@ -1010,15 +1026,18 @@ server <- function(input, output, session) {
                 xmax = urbanWilcoxon$conf.int[2])
             )
         },
-        alt = "WANYI! FILL IN!"
+        alt = "Here should be the boxplot of number of siblings by areas"
       )
       
       ### Two sample dot plot ----
       output$dotplot2 <- renderPlot(
         expr = {
           ggplot(
-            data = Siblings_data,
-            mapping = aes(x = NumOfSbls, fill = Area, color = Area)
+            data = siblingsData,
+            mapping = aes(
+              x = numOfSbls, 
+              fill = area, 
+              color = area)
           ) + 
             theme_bw() +
             theme(
@@ -1031,7 +1050,7 @@ server <- function(input, output, session) {
               plot.margin = margin(t = 0, r = 5, b = 0, l = 20, unit = "pt")
             ) +
             labs(
-              title = "Dotplot of Number of Siblings by Area",
+              title = "Dotplot of Number of Siblings by area",
               x = "Number of Siblings",
               y = NULL
             ) +
@@ -1046,13 +1065,13 @@ server <- function(input, output, session) {
             position = position_dodge(width = 0.27)
           )
         },
-        alt = "WANYI! FILL IN!"
+        alt = "Here should be the dotplot of number of siblings by areas"
       )
       
       ### Get Two Sample Wilcoxon Results ----
       siblingsWilcoxon <- wilcox.test(
-        formula = NumOfSbls ~ Area,
-        data = Siblings_data,
+        formula = numOfSbls ~ area,
+        data = siblingsData,
         paired = FALSE,
         conf.level = input$level2/100,
         conf.int = T, 
@@ -1064,13 +1083,20 @@ server <- function(input, output, session) {
       ### Form Combined Plot 1 ----
       output$mixplot <- renderPlot(
         expr = {
-          ggplot(data = Diff, mapping = aes(x = diff)) + 
-            geom_boxplot(lwd = 1, fatten = 2, width = 200) +
+          ggplot(
+            data = difference, 
+            mapping = aes(
+              x = difference)) + 
+            geom_boxplot(lwd = 1, 
+                         fatten = 2, 
+                         width = 200) +
             scale_x_continuous(
-              breaks = seq.int(from = -8, to = 8, by = 2)
+              breaks = seq.int(from = -8, 
+                               to = 8, 
+                               by = 2)
             ) +
             labs(
-              title = paste("Plots of the difference of number of siblings",
+              title = paste("Plots of the differences of number of siblings",
                             "between areas for all (rural, urban) pairs"),
               x = NULL,
               y = NULL
@@ -1095,13 +1121,17 @@ server <- function(input, output, session) {
               plot.margin = margin(t = 0, r = 5, b = 0, l = 50, unit = "pt")
             )
         },
-        alt = "WANYI! FILL IN!"
+        alt = "Here should be the boxplot of differences of number of siblings between 
+        areas for all (rural, urban) pairs"
       )
       
       ### Form Combined Plot 2 ----
       output$mixplot2 <- renderPlot(
         expr = {
-          ggplot(data = Diff, mapping = aes(x = diff)) + 
+          ggplot(
+            data = difference, 
+            mapping = aes(
+              x = difference)) + 
             geom_histogram(
               fill = "skyblue",
               col = "black",
@@ -1110,7 +1140,10 @@ server <- function(input, output, session) {
             ) +
             theme_bw() +
             scale_x_continuous(
-              breaks = seq.int(from = -8, to = 8, by = 2)
+              breaks = seq.int(
+                from = -8, 
+                to = 8, 
+                by = 2)
             ) +
             theme(
               plot.caption = element_text(size = 18),
@@ -1118,10 +1151,11 @@ server <- function(input, output, session) {
               axis.title = element_text(size = 16),
             ) +
             labs(
-              x = "Rural - Urban"
+              x = "rural - urban"
             ) 
         },
-        alt = "WANYI! FILL IN!"
+        alt = "Here should be the histogram of differences of number of siblings between 
+        areas for all (rural, urban) pairs"
       )
     }
   )
@@ -1129,14 +1163,14 @@ server <- function(input, output, session) {
   ## CI table two-sample ----
   
   # output$CItable2 <- renderTable({
-  #   # ruralWilcoxon <- wilcox.test(Rural, 
+  #   # ruralWilcoxon <- wilcox.test(rural, 
   #   #                        mu = 2, 
   #   #                        conf.level = input$level2/100,
   #   #                        conf.int = T, 
   #   #                        correct = F, 
   #   #                        exact = T,
   #   #                        alternative = input$AltHypo2)
-  #   # urbanWilcoxon <- wilcox.test(Urban, 
+  #   # urbanWilcoxon <- wilcox.test(urban, 
   #   #                        mu = 1, 
   #   #                        conf.level = input$level2/100,
   #   #                        conf.int = T, 
@@ -1144,8 +1178,8 @@ server <- function(input, output, session) {
   #   #                        exact = T,
   #   #                        alternative = input$AltHypo2)
   #   siblingsWilcoxon <- wilcox.test(
-  #     formula = NumOfSbls ~ Area,
-  #     data = Siblings_data,
+  #     formula = numOfSbls ~ area,
+  #     data = siblingsData,
   #     paired = FALSE,
   #     conf.level = input$level2/100,
   #     conf.int = T, 
@@ -1172,7 +1206,7 @@ server <- function(input, output, session) {
   #   }
   #   
   #   # if (input$CIcheckbox2) {
-  #   #   ctable <- matrix(c("Rural", "Urban","Diff",round(ruralWilcoxon$conf.int[1],2), 
+  #   #   ctable <- matrix(c("rural", "urban","difference",round(ruralWilcoxon$conf.int[1],2), 
   #   #                      round(urbanWilcoxon$conf.int[1],2), round(siblingsWilcoxon$conf.int[1],2),
   #   #                      round(ruralWilcoxon$conf.int[2],2), round(urbanWilcoxon$conf.int[2],2),
   #   #                      round(siblingsWilcoxon$conf.int[2],2), round(ruralWilcoxon$p.value,2),
@@ -1195,8 +1229,8 @@ server <- function(input, output, session) {
     handlerExpr = {
       if (input$CIcheckbox2) {
         siblingsWilcoxon <- wilcox.test(
-          formula = NumOfSbls ~ Area,
-          data = Siblings_data,
+          formula = numOfSbls ~ area,
+          data = siblingsData,
           paired = FALSE,
           conf.level = input$level2/100,
           conf.int = T, 
@@ -1277,7 +1311,7 @@ server <- function(input, output, session) {
   # Signed Rank part ----
   ## population mean plot with true mean
   output$popMedian <- renderPlot({
-    PricePlot 
+    pricePlot 
   })
   
   
@@ -1287,7 +1321,7 @@ server <- function(input, output, session) {
     for (i in 1:25) {
       temp <- rbind(
         temp,
-        cbind(index = i, dplyr::slice_sample(AirbnbData, n = input$nsamp))
+        cbind(index = i, dplyr::slice_sample(airbnbData, n = input$nsamp))
       )
     }
     temp
@@ -1401,13 +1435,16 @@ server <- function(input, output, session) {
               )
             ) +
             geom_hline(
-              mapping = aes(yintercept = 56, color = "zpop"),
+              mapping = aes(
+                yintercept = 56, 
+                color = "zpop"),
               linewidth = 1.25,
               alpha = 1
             ) +
             coord_flip() +
             scale_size_manual(
-              values = c("TRUE" = 1.5, "FALSE" = .7),
+              values = c("TRUE" = 1.5, 
+                         "FALSE" = .7),
               guide = "none"
             ) +
             scale_color_manual(
@@ -1424,7 +1461,8 @@ server <- function(input, output, session) {
               )
             ) +
             scale_alpha_manual(
-              values = c("TRUE" = 1, "FALSE" = .5),
+              values = c("TRUE" = 1, 
+                         "FALSE" = .5),
               guide = "none"
             ) +
             labs(
@@ -1461,7 +1499,9 @@ server <- function(input, output, session) {
           )
           ggplot(NULL) +
             geom_boxplot(Samples() %>%
-                           dplyr::filter(index == isolate(selectedSample())),
+                           dplyr::filter(
+                             index == isolate(
+                               selectedSample())),
                          mapping = aes(y = price),
                          # bins = 15,
                          col = "black",
@@ -1470,24 +1510,30 @@ server <- function(input, output, session) {
             geom_rect(fill = OneSampleColor(),
                       alpha = 0.5,
                       data = Intervals() %>%
-                        dplyr::filter(index == isolate(selectedSample())),
-                      mapping = aes(xmin=-0.2,
-                                    xmax=0.2,
-                                    ymin=lowerbound,
-                                    ymax=upperbound)
+                        dplyr::filter(
+                          index == isolate(
+                            selectedSample())),
+                      mapping = aes(
+                        xmin=-0.2,
+                        xmax=0.2,
+                        ymin=lowerbound,
+                        ymax=upperbound)
             ) +
             geom_hline(
-              mapping = aes(yintercept = suppressWarnings(
-                wilcox.test((Samples() %>%
-                               dplyr::filter(
-                                 index == isolate(selectedSample())))$price,
-                            conf.level = 0.95,
-                            conf.int = T)$estimate), 
+              mapping = aes(
+                yintercept = suppressWarnings(
+                  wilcox.test((Samples() %>%
+                                 dplyr::filter(
+                                   index == isolate(selectedSample())))$price,
+                              conf.level = 0.95,
+                              conf.int = T)$estimate), 
                 color = "Est"),
               linewidth = 1
             ) +
             geom_hline(
-              mapping = aes(yintercept = 56, color = "pop"),
+              mapping = aes(
+                yintercept = 56, 
+                color = "pop"),
               linewidth = 1
             ) +
             coord_flip() +
@@ -1540,27 +1586,27 @@ server <- function(input, output, session) {
   
   ## population mean plot with true mean
   output$popMedian2 <- renderPlot({
-    PopularPlot1 
+    popularPlot1 
   })
   
   output$popMedian3 <- renderPlot({
-    PopularPlot2 
+    popularPlot2 
   })
   
   output$popMedian4 <- renderPlot({
-    PopularPlot3 
+    popularPlot3 
   })
   
   #### Generate 25 new samples ----
-  west <- AirbnbData2 %>%
+  west <- airbnbData2 %>%
     select(neighbourhood, availability_365) %>%
     filter(neighbourhood == "West Town")
   
-  north <- AirbnbData2 %>%
+  north <- airbnbData2 %>%
     select(neighbourhood, availability_365) %>%
     filter(neighbourhood == "Near North Side")
   
-  Samples_west <- eventReactive(input$new2, {
+  samplesWest <- eventReactive(input$new2, {
     temp <- data.frame()
     for (i in 1:25) {
       temp <- rbind(
@@ -1572,7 +1618,7 @@ server <- function(input, output, session) {
   }
   )
   
-  Samples_north <- eventReactive(input$new2, {
+  samplesNorth <- eventReactive(input$new2, {
     temp <- data.frame()
     for (i in 1:25) {
       temp <- rbind(
@@ -1585,12 +1631,12 @@ server <- function(input, output, session) {
   )
   
   Samples2 <- eventReactive(input$new2, {
-    rbind(Samples_north(), Samples_west())
+    rbind(samplesNorth(), samplesWest())
   }
   )
   
   North <- eventReactive(input$new2, {
-    Samples_north() %>%
+    samplesNorth() %>%
       rename(availability_north = availability_365,
              north = neighbourhood,
              i = index)
@@ -1598,16 +1644,16 @@ server <- function(input, output, session) {
   )
   
   West <- eventReactive(input$new2, {
-    Samples_west() %>%
+    samplesWest() %>%
       rename(availability_west = availability_365,
              west = neighbourhood,
              j = index)
   }
   )
   
-  Samples_diff <- eventReactive(input$new2, {
+  sampleDifference <- eventReactive(input$new2, {
     cbind(North(), West()) %>%
-      dplyr::mutate(diff = availability_north - availability_west)
+      dplyr::mutate(difference = availability_north - availability_west)
   }
   )
   
@@ -1784,9 +1830,9 @@ server <- function(input, output, session) {
             )
           )
           ggplot(NULL) +
-            geom_boxplot(Samples_diff() %>%
+            geom_boxplot(sampleDifference() %>%
                            dplyr::filter(i == isolate(selectedSample2())),
-                         mapping = aes(y = diff),
+                         mapping = aes(y = difference),
                          # bins = 15,
                          col = "black",
                          lwd = 1, fatten = 2
