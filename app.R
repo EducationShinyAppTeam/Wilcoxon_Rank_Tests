@@ -33,7 +33,6 @@ Siblings_data <- data.frame(
 Diff <- data.frame(
   diff = c(as.vector(outer(Rural, Urban, FUN = "-")))
 )
-# Diff <- data.frame("Rural - Urban" = c(Diff))
 
 ## One sample population plot
 AirbnbData <- read.csv("Airbnb.csv") %>%
@@ -938,87 +937,89 @@ server <- function(input, output, session) {
       }
     }
   )
-  
-  ## Boxplot two-sample ----
-  
+
+  # Wanyi look here ----
+  ## Two-sample Example ----
   observeEvent(
     eventExpr = c(input$level2, input$AltHypo2),
     handlerExpr = {
+      ### Get Values from Wilcoxon ----
+      ruralWilcoxon <- suppressWarnings(
+        wilcox.test(
+          x = Rural, 
+          mu = 2, 
+          conf.level = input$level2/100,
+          conf.int = T, 
+          correct = T, 
+          exact = F,
+          alternative = input$AltHypo2
+        )
+      )
+      urbanWilcoxon <- suppressWarnings(
+        wilcox.test(
+          x = Urban, 
+          mu = 1, 
+          conf.level = input$level2/100,
+          conf.int = T, 
+          correct = T, 
+          exact = F,
+          alternative = input$AltHypo2
+        )
+      )
+      
+      ### Two sample box plot ----
       output$boxplot2 <- renderPlot(
         expr = {
-          result2 <- wilcox.test(Rural, 
-                                 mu = 2, 
-                                 conf.level = input$level2/100,
-                                 conf.int = T, 
-                                 correct = T, 
-                                 exact = F,
-                                 alternative = input$AltHypo2)
-          result3 <- wilcox.test(Urban, 
-                                 mu = 1, 
-                                 conf.level = input$level2/100,
-                                 conf.int = T, 
-                                 correct = T, 
-                                 exact = F,
-                                 alternative = input$AltHypo2)
-          ggplot(Siblings_data, aes(x = Area, y = NumOfSbls)) + 
+          ggplot(data = Siblings_data, mapping = aes(y = Area, x = NumOfSbls)) + 
             geom_boxplot(lwd = 1, fatten = 2) +
-            coord_flip() +
             theme_bw() +
             labs(
               title = "Boxplot of Number of Siblings by Area",
-              y = "Number of Siblings",
-              x = "Rural         Urban"
+              x = "Number of Siblings",
+              y = NULL
             ) +
             theme(
               plot.caption = element_text(size = 18),
               text = element_text(size = 18),
               axis.title = element_text(size = 16),
               legend.position = "bottom",
-              axis.ticks.y = element_blank(),
-              axis.text.y = element_blank()
+              axis.text.y = element_text(angle = 90, hjust = 0.5)
             ) +
-            geom_rect(fill="red",alpha=0.01,
-                      aes(xmin=0.8,
-                          xmax=1.2,
-                          ymin=ifelse(result2$conf.int[1] < 0,
-                                      0,
-                                      result2$conf.int[1]),
-                          ymax=result2$conf.int[2])) +
-            geom_rect(fill="blue",alpha=0.01,
-                      aes(xmin=1.8,
-                          xmax=2.2,
-                          ymin=ifelse(result3$conf.int[1] < 0,
-                                      0,
-                                      result3$conf.int[1]),
-                          ymax=result3$conf.int[2]))
-        }
+            geom_rect(
+              fill = "red",
+              alpha = 0.01,
+              mapping = aes(
+                ymin = 0.8,
+                ymax = 1.2,
+                xmin = ifelse(
+                  test = ruralWilcoxon$conf.int[1] < 0,
+                  yes = 0,
+                  no = ruralWilcoxon$conf.int[1]),
+                xmax = ruralWilcoxon$conf.int[2])
+            ) +
+            geom_rect(
+              fill = "blue",
+              alpha = 0.01,
+              mapping = aes(
+                ymin = 1.8,
+                ymax = 2.2,
+                xmin = ifelse(
+                  test = urbanWilcoxon$conf.int[1] < 0,
+                  yes = 0,
+                  no = urbanWilcoxon$conf.int[1]),
+                xmax = urbanWilcoxon$conf.int[2])
+            )
+        },
+        alt = "WANYI! FILL IN!"
       )
-    }
-  )
-  
-  ## Dotplot two sample ----
-  
-  observeEvent(
-    eventExpr = c(input$level2, input$AltHypo2),
-    handlerExpr = {
+      
+      ### Two sample dot plot ----
       output$dotplot2 <- renderPlot(
         expr = {
-          result2 <- wilcox.test(Rural, 
-                                 mu = 2, 
-                                 conf.level = input$level2/100,
-                                 conf.int = T, 
-                                 correct = T, 
-                                 exact = F,
-                                 alternative = input$AltHypo2)
-          result3 <- wilcox.test(Urban, 
-                                 mu = 1, 
-                                 conf.level = input$level2/100,
-                                 conf.int = T, 
-                                 correct = T, 
-                                 exact = F,
-                                 alternative = input$AltHypo2)
-          ggplot(Siblings_data, 
-                 aes(x = NumOfSbls, fill = Area, color = Area)) + 
+          ggplot(
+            data = Siblings_data,
+            mapping = aes(x = NumOfSbls, fill = Area, color = Area)
+          ) + 
             theme_bw() +
             theme(
               plot.caption = element_text(size = 18),
@@ -1026,7 +1027,8 @@ server <- function(input, output, session) {
               axis.title = element_text(size = 16),
               legend.position = "bottom",
               axis.ticks.y = element_blank(),
-              axis.text.y = element_blank()
+              axis.text.y = element_blank(),
+              plot.margin = margin(t = 0, r = 5, b = 0, l = 20, unit = "pt")
             ) +
             labs(
               title = "Dotplot of Number of Siblings by Area",
@@ -1034,139 +1036,89 @@ server <- function(input, output, session) {
               y = NULL
             ) +
             scale_fill_manual(values = c("red", "blue")) +
-            # geom_vline(
-            #   mapping = aes(xintercept = round(result2$conf.int[1],2),
-            #                 colour = "CI"),
-            #   size = 1.25,
-            #   alpha = 1
-            # ) +
-            # geom_vline(
-            #   mapping = aes(xintercept = round(result2$conf.int[2],2),
-            #                 color = "CI"),
-            #   size = 1.25,
-            #   alpha = 0.55
-          # ) +
-          # geom_vline(
-          #   mapping = aes(xintercept = round(result3$conf.int[1],2),
-          #                 colour = "CI2"),
-          #   size = 1.25,
-          #   alpha = 1
-          # ) +
-          # geom_vline(
-          #   mapping = aes(xintercept = round(result3$conf.int[2],2),
-          #                 color = "CI2"),
-          #   size = 1.25,
-          #   alpha = 0.55
-          # ) +
-          # scale_color_manual(
-          #   name = NULL,
-          #   labels = c(
-          #     "CI" = "CI for\nRural",
-          #     "CI2" = "CI for\nUrban"
-          #   ),
-          #   values = c(
-          #     "CI" = "red",
-          #     "CI2" = "blue"
-          #   )) +
-          geom_dotplot(binwidth = 0.15,
-                       method = "histodot",
-                       right = FALSE,
-                       binpositions = "all",
-                       alpha = 0.55,
-                       stackgroups = FALSE,
-                       position = position_dodge(width = 0.27))
-        }
+          geom_dotplot(
+            binwidth = 0.15,
+            method = "histodot",
+            right = FALSE,
+            binpositions = "all",
+            alpha = 0.55,
+            stackgroups = FALSE,
+            position = position_dodge(width = 0.27)
+          )
+        },
+        alt = "WANYI! FILL IN!"
       )
-    }
-  )
-  
-  ## Mixplot two sample ----
-  
-  observeEvent(
-    eventExpr = c(input$level2, input$AltHypo2),
-    handlerExpr = {
+      
+      ### Get Two Sample Wilcoxon Results ----
+      siblingsWilcoxon <- wilcox.test(
+        formula = NumOfSbls ~ Area,
+        data = Siblings_data,
+        paired = FALSE,
+        conf.level = input$level2/100,
+        conf.int = T, 
+        correct = T, 
+        exact = F,
+        alternative = input$AltHypo2
+      )
+      
+      ### Form Combined Plot 1 ----
       output$mixplot <- renderPlot(
         expr = {
-          result4 <- wilcox.test(NumOfSbls ~ Area,
-                                 data = Siblings_data,
-                                 paired = FALSE,
-                                 conf.level = input$level2/100,
-                                 conf.int = T, 
-                                 correct = T, 
-                                 exact = F,
-                                 alternative = input$AltHypo2)
-          ggplot(Diff, aes(x = diff)) + 
+          ggplot(data = Diff, mapping = aes(x = diff)) + 
             geom_boxplot(lwd = 1, fatten = 2, width = 200) +
-            # geom_histogram(fill = "skyblue",
-            #                col = "black",
-            #                boundary = 0,
-            #                binwidth = 1,
-            #                alpha = 0.25) +
-            theme_bw() +
-            theme(
-              plot.caption = element_text(size = 18),
-              text = element_text(size = 18),
-              axis.title = element_text(size = 16),
-              legend.position = "bottom",
-              axis.ticks.y = element_blank(),
-              axis.text.y = element_blank()
-            ) +
             scale_x_continuous(
-              breaks = c(-8,-6,-4,-2,0,2,4,6,8)
-            )+
+              breaks = seq.int(from = -8, to = 8, by = 2)
+            ) +
             labs(
-              title = "Plots of the difference of number of siblings between areas for all (rural, urban) pairs",
+              title = paste("Plots of the difference of number of siblings",
+                            "between areas for all (rural, urban) pairs"),
               x = NULL,
               y = NULL
             ) +
-            geom_rect(fill="purple",alpha=0.007,
-                      aes(xmin=result4$conf.int[1],
-                          xmax=result4$conf.int[2],
-                          ymin=-80,
-                          ymax=80))
-          # geom_dotplot(binwidth = 0.1,
-          #              stackratio = 0.8,
-          #              right = FALSE,
-          #              stackdir = "center",
-          #              alpha = 0.5)
-        }
-      )
-    }
-  )
-  
-  observeEvent(
-    eventExpr = c(input$level2, input$AltHypo2),
-    handlerExpr = {
-      output$mixplot2 <- renderPlot(
-        expr = {
-          result4 <- wilcox.test(NumOfSbls ~ Area,
-                                 data = Siblings_data,
-                                 paired = FALSE,
-                                 conf.level = input$level2/100,
-                                 conf.int = T, 
-                                 correct = T, 
-                                 exact = F,
-                                 alternative = input$AltHypo2)
-          ggplot(Diff, aes(x = diff)) + 
-            geom_histogram(fill = "skyblue",
-                           col = "black",
-                           boundary = 0,
-                           binwidth = 1) +
+            geom_rect(
+              fill = "purple",
+              alpha = 0.007,
+              mapping = aes(
+                xmin = siblingsWilcoxon$conf.int[1],
+                xmax = siblingsWilcoxon$conf.int[2],
+                ymin = -80,
+                ymax = 80
+              )
+            ) +
             theme_bw() +
-            scale_x_continuous(
-              breaks = c(-8,-6,-4,-2,0,2,4,6,8)
-            )+
             theme(
               plot.caption = element_text(size = 18),
               text = element_text(size = 18),
               axis.title = element_text(size = 16),
-              legend.position = "bottom",
               axis.ticks.y = element_blank(),
-              axis.text.y = element_blank()
+              axis.text.y = element_blank(),
+              plot.margin = margin(t = 0, r = 5, b = 0, l = 50, unit = "pt")
+            )
+        },
+        alt = "WANYI! FILL IN!"
+      )
+      
+      ### Form Combined Plot 2 ----
+      output$mixplot2 <- renderPlot(
+        expr = {
+          ggplot(data = Diff, mapping = aes(x = diff)) + 
+            geom_histogram(
+              fill = "skyblue",
+              col = "black",
+              boundary = 0,
+              binwidth = 1
+            ) +
+            theme_bw() +
+            scale_x_continuous(
+              breaks = seq.int(from = -8, to = 8, by = 2)
+            ) +
+            theme(
+              plot.caption = element_text(size = 18),
+              text = element_text(size = 18),
+              axis.title = element_text(size = 16),
             ) +
             labs(
-              x = "Rural - Urban",
-              y = NULL
+              x = "Rural - Urban"
             ) 
         }
       )
@@ -1176,21 +1128,21 @@ server <- function(input, output, session) {
   ## CI table two-sample ----
   
   # output$CItable2 <- renderTable({
-  #   # result2 <- wilcox.test(Rural, 
+  #   # ruralWilcoxon <- wilcox.test(Rural, 
   #   #                        mu = 2, 
   #   #                        conf.level = input$level2/100,
   #   #                        conf.int = T, 
   #   #                        correct = F, 
   #   #                        exact = T,
   #   #                        alternative = input$AltHypo2)
-  #   # result3 <- wilcox.test(Urban, 
+  #   # urbanWilcoxon <- wilcox.test(Urban, 
   #   #                        mu = 1, 
   #   #                        conf.level = input$level2/100,
   #   #                        conf.int = T, 
   #   #                        correct = F, 
   #   #                        exact = T,
   #   #                        alternative = input$AltHypo2)
-  #   result4 <- wilcox.test(
+  #   siblingsWilcoxon <- wilcox.test(
   #     formula = NumOfSbls ~ Area,
   #     data = Siblings_data,
   #     paired = FALSE,
@@ -1202,8 +1154,8 @@ server <- function(input, output, session) {
   #   )
   #   
   #   ctable <- matrix(
-  #     data = c(round(result4$conf.int[1],2), round(result4$conf.int[2],2),
-  #              round(result4$p.value,2)),
+  #     data = c(round(siblingsWilcoxon$conf.int[1],2), round(siblingsWilcoxon$conf.int[2],2),
+  #              round(siblingsWilcoxon$p.value,2)),
   #     nrow = 1)
   #   colnames(ctable) <- c("Lower bound", "Upper bound", "p-value")
   #   print(ctable)
@@ -1219,11 +1171,11 @@ server <- function(input, output, session) {
   #   }
   #   
   #   # if (input$CIcheckbox2) {
-  #   #   ctable <- matrix(c("Rural", "Urban","Diff",round(result2$conf.int[1],2), 
-  #   #                      round(result3$conf.int[1],2), round(result4$conf.int[1],2),
-  #   #                      round(result2$conf.int[2],2), round(result3$conf.int[2],2),
-  #   #                      round(result4$conf.int[2],2), round(result2$p.value,2),
-  #   #                      round(result3$p.value,2), round(result4$p.value,2)), 
+  #   #   ctable <- matrix(c("Rural", "Urban","Diff",round(ruralWilcoxon$conf.int[1],2), 
+  #   #                      round(urbanWilcoxon$conf.int[1],2), round(siblingsWilcoxon$conf.int[1],2),
+  #   #                      round(ruralWilcoxon$conf.int[2],2), round(urbanWilcoxon$conf.int[2],2),
+  #   #                      round(siblingsWilcoxon$conf.int[2],2), round(ruralWilcoxon$p.value,2),
+  #   #                      round(urbanWilcoxon$p.value,2), round(siblingsWilcoxon$p.value,2)), 
   #   #                    nrow = 3)
   #   #   colnames(ctable) <- c("Name", "Lower bound", "Upper bound",  "p-value")
   #   # 
@@ -1241,7 +1193,7 @@ server <- function(input, output, session) {
     eventExpr = c(input$CIcheckbox2, input$AltHypo2, input$level2),
     handlerExpr = {
       if (input$CIcheckbox2) {
-        result4 <- wilcox.test(
+        siblingsWilcoxon <- wilcox.test(
           formula = NumOfSbls ~ Area,
           data = Siblings_data,
           paired = FALSE,
@@ -1253,12 +1205,12 @@ server <- function(input, output, session) {
         )
         
         ctable <- data.frame(
-          lower = round(result4$conf.int[1],2),
-          upper = round(result4$conf.int[2],2),
+          lower = round(siblingsWilcoxon$conf.int[1],2),
+          upper = round(siblingsWilcoxon$conf.int[2],2),
           p.value = if (input$AltHypo2 == "less") {
-            as.numeric(substr(as.character(signif(result4$p.value,4)),1,4))
+            as.numeric(substr(as.character(signif(siblingsWilcoxon$p.value,4)),1,4))
           }
-          else {signif(result4$p.value,2)
+          else {signif(siblingsWilcoxon$p.value,2)
           }
         )
         # print(ctable)
