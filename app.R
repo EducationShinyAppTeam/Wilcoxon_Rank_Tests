@@ -273,7 +273,7 @@ ui <- list(
             citeApp(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 11/18/2022 by WS.")
+            div(class = "updated", "Last Update: 11/30/2022 by WS.")
           )
         ),
         #### Set up the Prerequisites Page ----
