@@ -1120,7 +1120,8 @@ server <- function(input, output, session) {
             labs(
               x = "Rural - Urban"
             ) 
-        }
+        },
+        alt = "WANYI! FILL IN!"
       )
     }
   )
