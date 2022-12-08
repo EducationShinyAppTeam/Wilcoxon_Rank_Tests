@@ -273,7 +273,7 @@ ui <- list(
             citeApp(),
             br(),
             br(),
-            div(class = "updated", "Last Update: 12/01/2022 by WS.")
+            div(class = "updated", "Last Update: 12/08/2022 by WS.")
           )
         ),
         #### Set up the Prerequisites Page ----
@@ -525,7 +525,7 @@ ui <- list(
                   boxplots."),
                 bsButton(
                   inputId = "new",
-                  label = "Generate 25 Samples",
+                  label = "Generate 25 samples",
                   icon = icon("retweet"),
                   size = "large"
                 )
@@ -565,7 +565,7 @@ ui <- list(
               width = 6,
               plotOutput(
                 outputId = "CIplot",
-                click = "plot_click"
+                click = "plotClick"
               ),
               tags$script(HTML(
                 "$(document).ready(function() {
@@ -573,7 +573,7 @@ ui <- list(
               `This is the confidence interval plot.`)
               })"
               )),
-              textOutput("CoverageRate")
+              textOutput("coverageRate")
             )
           )
         ),
@@ -622,7 +622,7 @@ ui <- list(
                   boxplots."),
                 bsButton(
                   inputId = "new2",
-                  label = "Generate 25 Samples",
+                  label = "Generate 25 samples",
                   icon = icon("retweet"),
                   size = "large"
                 )
@@ -666,7 +666,7 @@ ui <- list(
               width = 6,
               plotOutput(
                 outputId = "CIplot2",
-                click = "plot_click2"
+                click = "plotClick2"
               ),
               tags$script(HTML(
                 "$(document).ready(function() {
@@ -674,7 +674,7 @@ ui <- list(
               `This is the confidence interval plot.`)
               })"
               )),
-              textOutput("CoverageRate2")
+              textOutput("coverageRate2")
             )
           )
         ),
@@ -755,21 +755,23 @@ ui <- list(
 # Define server logic ----
 server <- function(input, output, session) {
   
-  # This is for Example page
-  ## Boxplot one-sample----
+  ## This is for Example page
+  ## One-sample example ----
   observeEvent(
     eventExpr = c(input$level, input$AltHypo),
     handlerExpr = {
+      ### Get Values from Wilcoxon ----
+      gripstrengthWilcoxon <- wilcox.test(
+        armData$gripStrength, 
+        mu = 50, 
+        conf.level = input$level/100,
+        conf.int = T, 
+        correct = T, 
+        exact = F,
+        alternative = input$AltHypo)
+      ### One-sample boxplot----
       output$boxplot1 <- renderPlot(
         expr = {
-          gripstrengthWilcoxon <- wilcox.test(
-            armData$gripStrength, 
-            mu = 50, 
-            conf.level = input$level/100,
-            conf.int = T, 
-            correct = T, 
-            exact = F,
-            alternative = input$AltHypo)
           ggplot(armData, 
                  aes(y = gripStrength)) + 
             geom_boxplot(lwd = 1, 
@@ -799,23 +801,9 @@ server <- function(input, output, session) {
                           ymax=gripstrengthWilcoxon$conf.int[2]))
         }
       )
-    }
-  )
-  
-  ## Dotplot one-sample ----
-  observeEvent(
-    eventExpr = c(input$level, input$AltHypo),
-    handlerExpr = {
+      ### One-sample dotplot ----
       output$dotplot1 <- renderPlot(
         expr = {
-          gripstrengthWilcoxon <- wilcox.test(
-            armData$gripStrength, 
-            mu = 0, 
-            conf.level = input$level/100,
-            conf.int = T, 
-            correct = T, 
-            exact = F,
-            alternative = input$AltHypo)
           ggplot(armData, 
                  aes(x = gripStrength)) + 
             theme_bw() +
@@ -1228,7 +1216,8 @@ server <- function(input, output, session) {
     eventExpr = c(input$CIcheckbox2, input$AltHypo2, input$level2),
     handlerExpr = {
       if (input$CIcheckbox2) {
-        siblingsWilcoxon <- wilcox.test(
+        siblingsWilcoxon <- suppressWarnings(
+          wilcox.test(
           formula = numOfSbls ~ area,
           data = siblingsData,
           paired = FALSE,
@@ -1237,6 +1226,7 @@ server <- function(input, output, session) {
           correct = F, 
           exact = T,
           alternative = input$AltHypo2
+        )
         )
         
         ctable <- data.frame(
@@ -1316,7 +1306,7 @@ server <- function(input, output, session) {
   
   
   ### Generate 50 new samples ----
-  Samples <- eventReactive(input$new, {
+  samples <- eventReactive(input$new, {
     temp <- data.frame() 
     for (i in 1:25) {
       temp <- rbind(
@@ -1331,8 +1321,8 @@ server <- function(input, output, session) {
   
   ### Calculate the interval ----
   
-  Intervals <- reactive({
-    Samples() %>%
+  intervals <- reactive({
+    samples() %>%
       dplyr::select(index, price) %>%
       group_by(index) %>%
       summarise(
@@ -1346,48 +1336,48 @@ server <- function(input, output, session) {
   
   ### Default as all the samples are selected ----
   ### TODO: What is this code's purpose?
-  selected_sample <- 25
+  selectedsample <- 25
   selectedSample <- reactive({
-    if (!is.null(input$plot_click)) {
-      selected_sample <<- round(input$plot_click$y)
-      if (selected_sample < 1) {
-        selected_sample <<- 1
+    if (!is.null(input$plotClick)) {
+      selectedsample <<- round(input$plotClick$y)
+      if (selectedsample < 1) {
+        selectedsample <<- 1
       }
-      if (selected_sample > 25) {
-        selected_sample <<- 25
+      if (selectedsample > 25) {
+        selectedsample <<- 25
       }
     }
-    selected_sample
+    selectedsample
   })
   
   # OneSample <- reactive({
-  #   Samples() %>%
+  #   samples() %>%
   #     filter(index == selectedSample())
   # })
   
-  OneSampleColor <- reactive({
+  oneSampleColor <- reactive({
     colors <- c("TRUE" = "skyblue1", "FALSE" = "lightcoral")
-    covers <- (Intervals() %>% filter(index == selectedSample()))$cover
+    covers <- (intervals() %>% filter(index == selectedSample()))$cover
     colors[as.character(covers)]
   })
   
   ### Store xAPI interacted statement ----
-  observeEvent(input$plot_click, {
+  observeEvent(input$plotClick, {
     
     stmt <- boastUtils::generateStatement(
       session,
       verb = "interacted",
       object = "CIplot",
-      description = "90% Confidence Intervals for the Median",
+      description = "90% Confidence intervals for the Median",
       interactionType = "numeric",
-      response = jsonlite::toJSON(input$plot_click)
+      response = jsonlite::toJSON(input$plotClick)
     )
     
     boastUtils::storeStatement(session, stmt)
   })
   
   ### Text messages ----
-  output$CoverageRate <- renderText({
+  output$coverageRate <- renderText({
     validate(
       need(is.numeric(input$nsamp),
            message = "Please input sample size"
@@ -1395,11 +1385,11 @@ server <- function(input, output, session) {
     )
     
     paste0(
-      sum(Intervals()$cover),
+      sum(intervals()$cover),
       " of these ",
-      nrow(Intervals()),
+      nrow(intervals()),
       " intervals cover the parameter value. The coverage rate is ",
-      round(100 * sum(Intervals()$cover) / nrow(Intervals()), 2),
+      round(100 * sum(intervals()$cover) / nrow(intervals()), 2),
       "%."
     )
   })
@@ -1422,7 +1412,7 @@ server <- function(input, output, session) {
             )
           )
           
-          ggplot(data = Intervals()) +
+          ggplot(data = intervals()) +
             geom_pointrange(
               mapping = aes(
                 x = index,
@@ -1466,7 +1456,7 @@ server <- function(input, output, session) {
               guide = "none"
             ) +
             labs(
-              title = paste0(input$level3, "% Confidence Intervals for the Median"),
+              title = paste0(input$level3, "% Confidence intervals for the Median"),
               x = NULL,
               y = "Prices ($ per day)"
             ) +
@@ -1482,7 +1472,7 @@ server <- function(input, output, session) {
         })})
   
   ###Sample boxplot ----
-  SelectedIndex <- reactiveVal(1)
+  selectedIndex <- reactiveVal(1)
   
   observeEvent(
     eventExpr = selectedSample(),
@@ -1498,7 +1488,7 @@ server <- function(input, output, session) {
             )
           )
           ggplot(NULL) +
-            geom_boxplot(Samples() %>%
+            geom_boxplot(samples() %>%
                            dplyr::filter(
                              index == isolate(
                                selectedSample())),
@@ -1507,9 +1497,9 @@ server <- function(input, output, session) {
                          col = "black",
                          lwd = 1, fatten = 2,
             ) +
-            geom_rect(fill = OneSampleColor(),
+            geom_rect(fill = oneSampleColor(),
                       alpha = 0.5,
-                      data = Intervals() %>%
+                      data = intervals() %>%
                         dplyr::filter(
                           index == isolate(
                             selectedSample())),
@@ -1522,7 +1512,7 @@ server <- function(input, output, session) {
             geom_hline(
               mapping = aes(
                 yintercept = suppressWarnings(
-                  wilcox.test((Samples() %>%
+                  wilcox.test((samples() %>%
                                  dplyr::filter(
                                    index == isolate(selectedSample())))$price,
                               conf.level = 0.95,
@@ -1630,7 +1620,7 @@ server <- function(input, output, session) {
   }
   )
   
-  Samples2 <- eventReactive(input$new2, {
+  samples2 <- eventReactive(input$new2, {
     rbind(samplesNorth(), samplesWest())
   }
   )
@@ -1660,8 +1650,8 @@ server <- function(input, output, session) {
   
   #### Calculate the interval ----
   
-  Intervals2 <- reactive({
-    Samples2() %>%
+  intervals2 <- reactive({
+    samples2() %>%
       #dplyr::select(index, availability_365) %>%
       group_by(index) %>%
       summarise(
@@ -1681,48 +1671,48 @@ server <- function(input, output, session) {
   
   ### Default as all the samples are selected ----
   ### TODO: What is this code's purpose?
-  selected_sample2 <- 25
+  selectedsample2 <- 25
   selectedSample2 <- reactive({
-    if (!is.null(input$plot_click2)) {
-      selected_sample2 <<- round(input$plot_click2$y)
-      if (selected_sample2 < 1) {
-        selected_sample2 <<- 1
+    if (!is.null(input$plotClick2)) {
+      selectedsample2 <<- round(input$plotClick2$y)
+      if (selectedsample2 < 1) {
+        selectedsample2 <<- 1
       }
-      if (selected_sample2 > 25) {
-        selected_sample2 <<- 25
+      if (selectedsample2 > 25) {
+        selectedsample2 <<- 25
       }
     }
-    selected_sample2
+    selectedsample2
   })
   
   # # OneSample <- reactive({
-  # #   Samples() %>%
+  # #   samples() %>%
   # #     filter(index == selectedSample())
   # # })
   #
-  OneSampleColor2 <- reactive({
+  oneSampleColor2 <- reactive({
     colors <- c("TRUE" = "skyblue1", "FALSE" = "lightcoral")
-    covers <- (Intervals2() %>% filter(index == selectedSample2()))$cover
+    covers <- (intervals2() %>% filter(index == selectedSample2()))$cover
     colors[as.character(covers)]
   })
   
   ### Store xAPI interacted statement ----
-  observeEvent(input$plot_click2, {
+  observeEvent(input$plotClick2, {
     
     stmt2 <- boastUtils::generateStatement(
       session,
       verb = "interacted",
       object = "CIplot2",
-      description = "90% Confidence Intervals for the Median",
+      description = "90% Confidence intervals for the Median",
       interactionType = "numeric",
-      response = jsonlite::toJSON(input$plot_click2)
+      response = jsonlite::toJSON(input$plotClick2)
     )
     
     boastUtils::storeStatement(session, stmt2)
   })
   
   ### Text messages ----
-  output$CoverageRate2 <- renderText({
+  output$coverageRate2 <- renderText({
     validate(
       need(is.numeric(input$nsamp2),
            message = "Please input sample size"
@@ -1730,11 +1720,11 @@ server <- function(input, output, session) {
     )
     
     paste0(
-      sum(Intervals2()$cover),
+      sum(intervals2()$cover),
       " of these ",
-      nrow(Intervals2()),
+      nrow(intervals2()),
       " intervals cover the parameter value. The coverage rate is ",
-      round(100 * sum(Intervals2()$cover) / nrow(Intervals2()), 2),
+      round(100 * sum(intervals2()$cover) / nrow(intervals2()), 2),
       "%."
     )
   })
@@ -1757,7 +1747,7 @@ server <- function(input, output, session) {
             )
           )
           
-          ggplot(data = Intervals2()) +
+          ggplot(data = intervals2()) +
             geom_pointrange(
               mapping = aes(
                 x = index,
@@ -1797,7 +1787,7 @@ server <- function(input, output, session) {
               guide = "none"
             ) +
             labs(
-              title = paste0(input$level4, "% Confidence Intervals for the Median"),
+              title = paste0(input$level4, "% Confidence intervals for the Median"),
               x = NULL,
               y = "# days available"
             ) +
@@ -1814,7 +1804,7 @@ server <- function(input, output, session) {
         })})
   
   ###Sample boxplot ----
-  SelectedIndex <- reactiveVal(1)
+  selectedIndex <- reactiveVal(1)
   
   observeEvent(
     eventExpr = selectedSample2(),
@@ -1831,37 +1821,47 @@ server <- function(input, output, session) {
           )
           ggplot(NULL) +
             geom_boxplot(sampleDifference() %>%
-                           dplyr::filter(i == isolate(selectedSample2())),
-                         mapping = aes(y = difference),
+                           dplyr::filter(
+                             i == isolate(
+                               selectedSample2())),
+                         mapping = aes(
+                           y = difference),
                          # bins = 15,
                          col = "black",
                          lwd = 1, fatten = 2
             ) +
             ylim(-400,400) +
-            geom_rect(fill = OneSampleColor2(),
+            geom_rect(fill = oneSampleColor2(),
                       alpha = 0.5,
-                      data = Intervals2() %>%
-                        dplyr::filter(index == isolate(selectedSample2())),
+                      data = intervals2() %>%
+                        dplyr::filter(
+                          index == isolate(
+                            selectedSample2())),
                       mapping = aes(xmin=-0.2,
                                     xmax=0.2,
                                     ymin=lowerbound,
                                     ymax=upperbound)
             ) +
             geom_hline(
-              mapping = aes(yintercept = suppressWarnings(
-                wilcox.test(((Samples2() %>%
-                                dplyr::filter(
-                                  index == isolate(selectedSample2())))$availability_365) ~ 
-                              ((Samples2() %>%
+              mapping = aes(
+                yintercept = suppressWarnings(
+                  wilcox.test(((samples2() %>%
                                   dplyr::filter(
-                                    index == isolate(selectedSample2())))$neighbourhood),
-                            conf.level = 0.95,
-                            conf.int = T)$estimate),
+                                    index == isolate(
+                                      selectedSample2())))$availability_365) ~ 
+                                ((samples2() %>%
+                                    dplyr::filter(
+                                      index == isolate(
+                                        selectedSample2())))$neighbourhood),
+                              conf.level = 0.95,
+                              conf.int = T)$estimate),
                 color = "Est"),
               linewidth = 1
             ) +
             geom_hline(
-              mapping = aes(yintercept = 0, color = "pop"),
+              mapping = aes(
+                yintercept = 0, 
+                color = "pop"),
               linewidth = 1
             ) +
             coord_flip() +
